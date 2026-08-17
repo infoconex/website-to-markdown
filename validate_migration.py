@@ -17,6 +17,7 @@ REQUIRED_FIELDS = ("title", "date", "description", "tags", "slug", "author", "or
 DATED_LEGACY_RE = re.compile(r"^/post/\d{4}/\d{2}/\d{2}/[^/]+/?$", re.I)
 MD_LINK_RE = re.compile(r"!?\[[^\]]*\]\((?P<url>[^)\s]+)")
 HTML_SRC_RE = re.compile(r"(?:src|href)=[\"'](?P<url>[^\"']+)[\"']", re.I)
+LEGACY_HOSTS = {"coding.infoconex.com", "www.coding.infoconex.com"}
 
 
 def read_frontmatter(path: Path) -> tuple[dict, str]:
@@ -36,6 +37,15 @@ def local_urls(body: str) -> list[str]:
     urls = [m.group("url") for m in MD_LINK_RE.finditer(body)]
     urls.extend(m.group("url") for m in HTML_SRC_RE.finditer(body))
     return urls
+
+
+def is_legacy_host_link(url: str) -> bool:
+    """Return True only when the actual link target is the historical blog host."""
+    value = (url or "").strip()
+    if value.startswith("//"):
+        value = "http:" + value
+    parsed = urlsplit(value)
+    return (parsed.hostname or "").lower() in LEGACY_HOSTS and parsed.path.lower().startswith("/post/")
 
 
 def main() -> int:
@@ -97,7 +107,7 @@ def main() -> int:
 
         original_url = str(data.get("originalUrl") or "")
         parsed = urlsplit(original_url)
-        if parsed.hostname not in {"coding.infoconex.com", "www.coding.infoconex.com"}:
+        if parsed.hostname not in LEGACY_HOSTS:
             errors.append(f"{path.name}: unexpected originalUrl host: {original_url}")
         elif parsed.path and parsed.path not in legacy_paths:
             warnings.append(f"{path.name}: originalUrl path is not listed verbatim in legacyPaths: {parsed.path}")
@@ -119,7 +129,7 @@ def main() -> int:
                         errors.append(f"{path.name}: missing image asset: {clean}")
             if re.match(r"^/post/\d{4}/\d{2}/\d{2}/", clean, re.I):
                 errors.append(f"{path.name}: unresolved dated legacy link remains in body: {url}")
-            if "coding.infoconex.com/post/" in url.lower():
+            if is_legacy_host_link(url):
                 errors.append(f"{path.name}: unresolved legacy-host link remains in body: {url}")
 
     for slug, count in Counter(slugs).items():
