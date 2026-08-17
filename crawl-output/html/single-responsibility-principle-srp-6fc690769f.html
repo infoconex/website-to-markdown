@@ -1,0 +1,694 @@
+
+<!DOCTYPE html>
+<html>
+<head><meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<link rel="contents" title="Archive" href="/archive" />
+	<link rel="start" title="Jim Scott's Coding Blog" href="/" />
+	<link type="application/rsd+xml" rel="edituri" title="RSD" href="http://coding.infoconex.com/rsd.axd" />
+	<link type="application/rdf+xml" rel="meta" title="SIOC" href="http://coding.infoconex.com/sioc.axd" />
+	<link type="application/apml+xml" rel="meta" title="APML" href="http://coding.infoconex.com/apml.axd" />
+	<link type="application/rdf+xml" rel="meta" title="FOAF" href="http://coding.infoconex.com/foaf.axd" />
+	<link type="application/rss+xml" rel="alternate" title="Jim Scott's Coding Blog (RSS)" href="http://coding.infoconex.com/syndication.axd" />
+	<link type="application/atom+xml" rel="alternate" title="Jim Scott's Coding Blog (ATOM)" href="http://coding.infoconex.com/syndication.axd?format=atom" />
+	<link type="application/opensearchdescription+xml" rel="search" title="Jim Scott's Coding Blog" href="http://coding.infoconex.com/opensearch.axd" />
+	<link href="/Content/Auto/Global.css" rel="stylesheet" type="text/css" /><meta http-equiv="X-UA-Compatible" content="IE=edge" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="theme" content="Standard" /><link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Kreon:400,700" rel="stylesheet" /><link href="../../../../Custom/Themes/Standard/src/css/bootstrap.min.css" rel="stylesheet" /><link href="../../../../Custom/Themes/Standard/src/css/font-awesome.min.css" rel="stylesheet" /><link href="../../../../Custom/Themes/Standard/src/css/styles.min.css?=v12" rel="stylesheet" /><link href="../../../../scripts/syntaxhighlighter/styles/shCore.css" rel="stylesheet" type="text/css" /><link href="../../../../scripts/syntaxhighlighter/styles/shThemeDefault.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="/en.res.axd"></script>
+	<script type="text/javascript" src="/Scripts/Auto/01-jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="/Scripts/Auto/02-jquery.cookie.js"></script>
+	<script type="text/javascript" src="/Scripts/Auto/04-jquery-jtemplates.js"></script>
+	<script type="text/javascript" src="/Scripts/Auto/05-json2.min.js"></script>
+	<script type="text/javascript" src="/Scripts/Auto/blog.js"></script>
+    <script type="text/javascript" src="/scripts/syntaxhighlighter/scripts/XRegExp.js"></script>
+    <script type="text/javascript" src="/scripts/syntaxhighlighter/scripts/shCore.js"></script>
+    <script type="text/javascript" src="/scripts/syntaxhighlighter/scripts/shAutoloader.js"></script>
+    <script type="text/javascript" src="/scripts/syntaxhighlighter/shActivator.js"></script>
+	<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4274242971173265"
+     crossorigin="anonymous"></script>
+    <link rel="shortcut icon" href="../../../../Content/images/blog/blogengine.ico" type="image/x-icon" />
+    <style>
+        body {
+            background: #232526;
+            background: -webkit-linear-gradient(to left, #414345, #232526);
+            background: linear-gradient(to left, #414345, #232526);
+        }
+    </style>	
+
+	<meta name="keywords" content="c#,solid principles,single responsibility principle" />
+	<meta name="description" content="Jim Scott&#39;s Coding Blog - It&#39;s all about that code, that code, that code, no treble - &amp;nbsp;
+&amp;nbsp;
+The Single Responsibility Principle is the first of the five SOLID principles of objec" />
+	<meta name="author" content="Jim Scott" />
+<link rel="last" title="Open/Closed Principle (OCP) – Building for Extension, Not Modification" href="/post/2025/06/28/open-closed-principle-ocp-building-for-extension-not-modification" />
+<link rel="first" title="BlueQuartz enabling SSL/TLS FTP Support" href="/post/2008/05/27/BlueQuartz-enabling-SSLTLS-Support" />
+<link type="application/rss+xml" rel="alternate" title="Single Responsibility Principle (SRP) - Only one reason to change (RSS)" href="/post/feed/2025/06/28/single-responsibility-principle-srp?format=ATOM" />
+<link type="application/rss+xml" rel="alternate" title="Single Responsibility Principle (SRP) - Only one reason to change (ATOM)" href="/post/feed/2025/06/28/single-responsibility-principle-srp?format=ATOM" /><title>
+	Jim Scott's Coding Blog | Single Responsibility Principle (SRP) - Only one reason to change
+</title></head>
+<body class="ltr">
+    <form method="post" action="/post/2025/06/28/single-responsibility-principle-srp" id="aspnetForm">
+<div class="aspNetHidden">
+<input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="" />
+<input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="" />
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="vkv0rBgcXaxtshmRNs4MaD+fEI1xxaGWiw0BB9Sk1vLaDZq7md1swd39+cz5t7IDFM8rhgb0J/Whhnml8wCzKzCLZ78HgK5vLmjpNuhDm2nufeBzFoiiL8buLkaILNtnAWcHOKzVdOBLLZQkjV0Cq9tKHRIajA8mp9N0GJTppNF0RRoGSxNqd90s/K+ht7IDw+BuAg==" />
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['aspnetForm'];
+if (!theForm) {
+    theForm = document.aspnetForm;
+}
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]>
+</script>
+
+
+
+<script src="/res--477427567.js.axd" type="text/javascript"></script>
+
+        <div class="container">
+            <div class="blog-wrapper">
+                <aside class="blog-sidebar">
+                    <header class="blog-header">
+                        <div class="blog-info">
+                            <a class="blog-logo" href="http://coding.infoconex.com/" tabindex="-1">
+                                <img src="http://coding.infoconex.com/Custom/Themes/Standard/src/img/logo.png" alt="Jim Scott's Coding Blog" />
+                                Jim Scott's Coding Blog
+                            </a>
+                            <div class="blog-author">
+                                Software engineer that enjoys sharing with others information that was difficult to find the solution to or fun to solve
+                            </div>
+                            <ul class="social-network">
+                                <li><a href="" rel="external nofollow"><i class="fa fa-facebook"></i></a></li>
+                                <li><a href="" rel="external nofollow"><i class="fa fa-twitter"></i></a></li>
+                                <li><a href="" rel="external nofollow"><i class="fa fa-google-plus"></i></a></li>
+                                <li><a href="https://www.linkedin.com/in/jim-scott-a57782177" rel="external nofollow"><i class="fa fa-linkedin"></i></a></li>
+                                <li><a href="" rel="external nofollow"><i class="fa fa-instagram"></i></a></li>
+                                <li><a href="" rel="external nofollow"><i class="fa fa-youtube"></i></a></li>
+                                <li><a href="" rel="external nofollow"><i class="fa fa-git"></i></a></li>
+                                <li><a href="" rel="external nofollow"><i class="fa fa-pinterest"></i></a></li>
+                            </ul>
+                        </div>
+                        <nav class="blog-nav">
+                            <ul>
+                                <li><a href="http://coding.infoconex.com/" class="item-home" title="Home"><i class="fa fa-home"></i></a></li>
+                                <li><a href="http://coding.infoconex.com/archive" class="item-archive" title="Archive"><i class="fa fa-align-left"></i></a></li>
+                                <li><a href="http://coding.infoconex.com/contact" class="item-contact" title="Contact"><i class="fa fa-envelope"></i></a></li>
+                                <li><a href="/Account/login.aspx?ReturnURL=/admin/" id="ctl00_aLogin" class="item-login"><span id="ctl00_aLoginText">Log in</span></a></li>
+                            </ul>
+                        </nav>
+                    </header>			
+					<div id="amzn-assoc-ad-f5c1553d-77e4-4c0a-9b32-999befb81838"></div>
+					<script async src="//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US&adInstanceId=f5c1553d-77e4-4c0a-9b32-999befb81838"></script>
+					<div id="widgetzone_be_WIDGET_ZONE" class="widgetzone">
+<div class="Widget widget search">
+    <div class="WidgetContent widget-content">
+        <div id="searchbox">
+            <input type="text" id="txt-9b8e773d-ac1f-4255-9ef3-c298a852388e" placeholder="Search..." onkeypress="if (event.keyCode == 13) { BlogEngine.search('/', 'txt-9b8e773d-ac1f-4255-9ef3-c298a852388e'); return false; }" />
+            <input type="button" onkeypress="BlogEngine.search('/', 'txt-9b8e773d-ac1f-4255-9ef3-c298a852388e');" onclick="BlogEngine.search('/', 'txt-9b8e773d-ac1f-4255-9ef3-c298a852388e');" id="searchbutton" value="Search" />
+        </div>
+    </div>
+</div>
+<div class="Widget widget tagcloud">
+    <h4 class="WidgetHeader widget-header">TagCloud</h4>
+    <div class="WidgetContent widget-content">
+        <ul>
+            <li><a href="http://coding.infoconex.com/?tag=.net" class="small" title="Tag: .net">.net</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=Azure" class="small" title="Tag: Azure">Azure</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=BlueOnyx" class="small" title="Tag: BlueOnyx">BlueOnyx</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=bluequartz" class="small" title="Tag: bluequartz">bluequartz</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=c%23" class="biggest" title="Tag: c#">c#</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=design+patterns" class="medium" title="Tag: design patterns">design patterns</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=ebook" class="small" title="Tag: ebook">ebook</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=Hyper-V" class="small" title="Tag: Hyper-V">Hyper-V</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=LINQPad" class="medium" title="Tag: LINQPad">LINQPad</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=Linux" class="small" title="Tag: Linux">Linux</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=mono" class="small" title="Tag: mono">mono</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=open+closed+principle" class="medium" title="Tag: open closed principle">open closed principle</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=quota" class="small" title="Tag: quota">quota</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=Roundcube" class="small" title="Tag: Roundcube">Roundcube</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=secure+ftp" class="small" title="Tag: secure ftp">secure ftp</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=single+responsibility+principle" class="medium" title="Tag: single responsibility principle">single responsibility principle</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=solid+principles" class="medium" title="Tag: solid principles">solid principles</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=SQL" class="small" title="Tag: SQL">SQL</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=SSL" class="small" title="Tag: SSL">SSL</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=virus+scanning" class="small" title="Tag: virus scanning">virus scanning</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=Visual+Studio" class="small" title="Tag: Visual Studio">Visual Studio</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=WCF" class="small" title="Tag: WCF">WCF</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=Windows+8" class="small" title="Tag: Windows 8">Windows 8</a> </li>
+        </ul>
+    </div>
+</div>
+<style>
+    .recentcomments li a:last-child {
+        display: inline !important;
+    }
+</style>
+<div class="Widget widget recentcomments">
+    <h4 class="WidgetHeader widget-header">CommentList</h4>
+    <div class="WidgetContent widget-content">
+        <ul id="recentComments" class="recentcomments">
+                        <li>
+                            <a href="/post/2009/11/26/Automatically-attaching-VHD-files-in-Windows-7-and-Windows-2008#comment">Automatically attaching VHD files in Windows 7 and Windows 2008</a> (11)
+                            <br />shillinout wrote: Thanks for the info.  How would I attach multiple ... 
+                        </li>
+                        <li>
+                            <a href="/post/2012/06/01/Getting-LINQPad-to-read-your-applications-AppConfig-settings#comment">Getting LINQPad to read your applications App.Config settings</a> (5)
+                            <br />rekna wrote: There is another option available:
+simply by addi... 
+                        </li>
+                        <li>
+                            <a href="/post/2011/05/25/Fix-error-Failed-to-generate-a-user-instance-of-SQL-Server-due-to-a-failure-in-starting-the-process-for-the-user-instance#comment">Fix error:  Failed to generate a user instance of SQL Server due to a failure in starting the process for the user instance.</a> (2)
+                            <br />Davide wrote: Thanks!! You're awesome. That's what I needed!!! 
+                        </li>
+                        <li>
+                            <a href="/post/2012/06/01/Getting-LINQPad-to-read-your-applications-AppConfig-settings#comment">Getting LINQPad to read your applications App.Config settings</a> (5)
+                            <br />Anthony Ortega wrote: Very useful. Keep up the good work! 
+                        </li>
+                        <li>
+                            <a href="/post/2010/04/26/Bind-DNS-e28093-Configuring-multiple-views-on-primary-and-secondary-DNS-servers#comment">Bind DNS – Configuring multiple views on primary and secondary DNS servers</a> (1)
+                            <br />George Vareltzis wrote: Excellent post. I faced the same situation and tri... 
+                        </li>
+                        <li>
+                            <a href="/post/2013/01/08/Windows-8-Hyper-V-errors-with-could-not-be-started-because-the-hypervisor-is-not-running#comment">Windows 8 Hyper-V errors with &quot;could not be started because the hypervisor is not running&quot;</a> (1)
+                            <br />Zack wrote: thank you so much, that was exactly what my system... 
+                        </li>
+                        <li>
+                            <a href="/post/2012/06/01/Getting-LINQPad-to-read-your-applications-AppConfig-settings#comment">Getting LINQPad to read your applications App.Config settings</a> (5)
+                            <br />Joe Albahari wrote: Spot on: LINQPad.config is for your queries.
+
+LI... 
+                        </li>
+                        <li>
+                            <a href="/post/2009/01/14/C-Traceroute-using-net-framework#comment">C# Traceroute using .net framework</a> (5)
+                            <br />jscott wrote: RobRdam, thanks for the comment. I will fixup the ... 
+                        </li>
+                        <li>
+                            <a href="/post/2009/01/14/C-Traceroute-using-net-framework#comment">C# Traceroute using .net framework</a> (5)
+                            <br />RobRdam wrote: For those who are like me not familiar with the St... 
+                        </li>
+                        <li>
+                            <a href="/post/2012/06/01/Getting-LINQPad-to-read-your-applications-AppConfig-settings#comment">Getting LINQPad to read your applications App.Config settings</a> (5)
+                            <br />Matthew Cooper wrote: Thank you soo much!!!! 
+                        </li>
+                <li>
+                    <a href="/syndication.axd?comments=true">
+                        Comment RSS <img alt="" src="/Content/images/blog/rssButton.png">
+                    </a>
+                </li>
+        </ul>
+    </div>
+</div></div>
+                    <footer class="blog-footer">
+                        <p>
+                            Copyright &copy; 2026
+                        </p>
+                        <p>
+                            Powered by <a href="http://dotnetblogengine.net/" target="_blank" title="BlogEngine.NET 3.3.5.0">BlogEngine.NET</a>
+                        </p>
+                        <p>
+                            Designed by <a href="http://francis.bio/" rel="nofollow" target="_blank">Francis Bio</a>
+                        </p>
+                    </footer>
+                </aside>
+                <div class="blog-content admin-alerts-false">
+                    
+  
+  
+
+  
+<div id="postnavigation" class="navigation-posts well-global clearfix">
+    <div class="text-left next-post">
+        
+        <a href="/post/2025/06/28/open-closed-principle-ocp-building-for-extension-not-modification" class="nav-next">&larr; Open/Closed Principle (OCP) – Building for Extension, Not Modification </a>
+        
+    </div>
+    <div class="text-right prev-post ">
+        
+        <a href="/post/2025/06/13/creat-better-software-by-applying-solid-principles" class="nav-prev">Create better software by applying SOLID principles &rarr;</a>
+        
+    </div>
+</div>
+
+ 
+  
+
+<article class="post" id="post0">	
+    <header class="post-header">
+        <h2 class="post-title">
+            <a href="/post/2025/06/28/single-responsibility-principle-srp">Single Responsibility Principle (SRP) - Only one reason to change</a>
+        </h2>
+        <div class="post-info clearfix">
+            <span class="post-date">28 June 2025</span>
+            <span class="post-author"><a href="http://coding.infoconex.com/author/jscott">jscott</a></span>
+            <span class="post-category"><a href="/category/Software-Development-Practices">Software Development Practices</a></span>
+        </div>
+    </header>
+    <section class="post-body text">
+        <p data-start="236" data-end="455">The <strong data-start="240" data-end="275">Single Responsibility Principle</strong> is the first of the five SOLID principles of object-oriented design, introduced by Robert C. Martin (Uncle Bob). It helps make software easier to understand, maintain, and extend.</p>
+<blockquote data-start="457" data-end="521">
+<p data-start="459" data-end="521"><strong data-start="459" data-end="474">Definition:</strong> A class should have only one reason to change.</p>
+</blockquote>
+<p data-start="523" data-end="700">This means a class should encapsulate only one responsibility or role. When a class has multiple responsibilities, those become tightly coupled, making changes risky and costly.</p>
+<hr data-start="702" data-end="705" />
+<h2 data-start="707" data-end="746">What Uncle Bob Says About SRP Smells</h2>
+<p data-start="748" data-end="918">Robert C. Martin (Uncle Bob) describes several code smells that help identify when the Single Responsibility Principle may be violated. These smells fall into two groups:</p>
+<hr data-start="920" data-end="923" />
+<h3 data-start="925" data-end="964">Direct Indicators of SRP Violations</h3>
+<ul data-start="966" data-end="1400">
+<li data-start="966" data-end="1147">
+<p data-start="968" data-end="1147">Divergent Change<br data-start="984" data-end="987" /> A class changes for multiple unrelated reasons (e.g., business logic, logging, persistence). This tightly couples different concerns and clearly violates SRP.</p>
+</li>
+<li data-start="1149" data-end="1281">
+<p data-start="1151" data-end="1281">Vague Class Names<br data-start="1168" data-end="1171" /> Names like <code data-start="1184" data-end="1193">Manager</code>, <code data-start="1195" data-end="1206">Processor</code>, or <code data-start="1211" data-end="1220">Service</code> often signal that a class handles multiple responsibilities.</p>
+</li>
+<li data-start="1283" data-end="1400">
+<p data-start="1285" data-end="1400">Chunky Methods<br data-start="1299" data-end="1302" /> Large methods containing multiple unrelated operations indicate the class may be doing too much.</p>
+</li>
+</ul>
+<hr data-start="1402" data-end="1405" />
+<h3 data-start="1407" data-end="1469">Related Design Smells Often Associated with SRP Violations</h3>
+<ul data-start="1471" data-end="2325">
+<li data-start="1471" data-end="1668">
+<p data-start="1473" data-end="1668">Shotgun Surgery (Inverse)<br data-start="1498" data-end="1501" /> Responsibilities scattered across many classes require multiple changes spread out for a single change. This reflects poor responsibility distribution in the system.</p>
+</li>
+<li data-start="1670" data-end="1827">
+<p data-start="1672" data-end="1827">Feature Envy<br data-start="1684" data-end="1687" /> A class frequently accesses data or methods of another class, indicating misplaced behavior but not necessarily multiple responsibilities.</p>
+</li>
+<li data-start="1829" data-end="1992">
+<p data-start="1831" data-end="1992">Inappropriate Intimacy<br data-start="1853" data-end="1856" /> Excessive coupling through access to internal details of other classes; often correlates with SRP issues but can appear independently.</p>
+</li>
+<li data-start="1994" data-end="2154">
+<p data-start="1996" data-end="2154">Data Clumps<br data-start="2007" data-end="2010" /> Groups of related variables passed together instead of encapsulated. This points to missing abstractions and can contribute to SRP violations.</p>
+</li>
+<li data-start="2156" data-end="2325">
+<p data-start="2158" data-end="2325">Multiple Stakeholders Affected<br data-start="2188" data-end="2191" /> When different teams or roles must change the same class for different reasons; a design smell important at an organizational level.</p>
+</li>
+</ul>
+<hr data-start="2327" data-end="2330" />
+<h2 data-start="2332" data-end="2389">Bad Example: A Class Doing Too Much (Smells Annotated)</h2>
+<pre class="brush:csharp;auto-links:false;toolbar:false" contenteditable="false">using System;
+using System.IO;
+using System.Runtime.Caching;
+using log4net;
+
+public class ReportManager
+{
+    // Smell: Divergent change - Logging responsibility mixed in using a 3rd party library
+    // Violation: Tight coupling to log4net means if we want to change logging
+    // frameworks, we must modify this class and others using log4net directly.
+    private static readonly ILog _logger = LogManager.GetLogger(typeof(ReportManager));
+    
+    // Smell: Divergent change - Caching responsibility mixed in
+    // Violation: Direct dependency on MemoryCache couples business logic
+    // to caching implementation; changing caching tech requires class modification.
+    private readonly MemoryCache _cache = MemoryCache.Default;
+
+    public string CreateReport(string reportId)
+    {
+        if (_cache.Contains(reportId))
+        {
+            _logger.Info($"Report {reportId} retrieved from cache.");
+            return _cache.Get(reportId) as string;
+        }
+
+        // Core business logic &mdash; report data generation
+        var reportData = new 
+        {
+            ReportId = reportId,
+            GeneratedAt = DateTime.Now,
+            Content = $"This is the content of report {reportId}."
+        };
+
+        // Smell: Divergent change - Serialization logic mixed with business logic
+        // Violation: Tight coupling to System.Text.Json means changes to format or serializer
+        // affect this class, violating SRP.
+        string reportJson = System.Text.Json.JsonSerializer.Serialize(reportData, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+
+        // Smell: Divergent change - File persistence mixed in
+        // Violation: Using File.WriteAllText directly couples file I/O to business logic;
+        // changing persistence strategy requires editing this method.
+        string filePath = $"report_{reportId}.json";
+        File.WriteAllText(filePath, reportJson);
+
+        _logger.Info($"Report {reportId} saved to {filePath}");
+
+        _cache.Set(reportId, reportJson, DateTimeOffset.Now.AddMinutes(10));
+
+        return reportJson;
+    }
+}
+</pre>
+<p>&nbsp;</p>
+<h3 data-start="99" data-end="144">Summary: Why the example Violates SRP</h3>
+<p data-start="146" data-end="339">The <code data-start="150" data-end="165">ReportManager</code> class in the example violates the Single Responsibility Principle by taking on <strong data-start="249" data-end="287">multiple distinct responsibilities</strong>, each of which could change for a different reason:</p>
+<ul data-start="341" data-end="928">
+<li data-start="341" data-end="402">
+<p data-start="343" data-end="402"><strong data-start="343" data-end="361">Business Logic</strong> &ndash; Generating the contents of the report.</p>
+</li>
+<li data-start="403" data-end="528">
+<p data-start="405" data-end="528"><strong data-start="405" data-end="416">Logging</strong> &ndash; Logging using a specific framework (<code data-start="455" data-end="464">log4net</code>), tightly coupling the class to a particular logging mechanism.</p>
+</li>
+<li data-start="529" data-end="647">
+<p data-start="531" data-end="647"><strong data-start="531" data-end="542">Caching</strong> &ndash; Storing and retrieving data using <code data-start="579" data-end="592">MemoryCache</code>, which could change independently from business logic.</p>
+</li>
+<li data-start="648" data-end="780">
+<p data-start="650" data-end="780"><strong data-start="650" data-end="667">Serialization</strong> &ndash; Converting the report to JSON using <code data-start="706" data-end="724">System.Text.Json</code>, which may need to be swapped or modified in isolation.</p>
+</li>
+<li data-start="781" data-end="928">
+<p data-start="783" data-end="928"><strong data-start="783" data-end="798">Persistence</strong> &ndash; Writing the report to disk with <code data-start="833" data-end="852">File.WriteAllText</code>, introducing concerns related to file systems, security, or output formats.</p>
+</li>
+</ul>
+<p data-start="930" data-end="1151">Any change in <strong data-start="944" data-end="955">any one</strong> of these areas &mdash; e.g., switching logging libraries, changing report format, updating caching rules &mdash; would require modifying this class, increasing the chance of bugs and creating ripple effects.</p>
+<p data-start="1153" data-end="1257">This coupling of responsibilities creates <strong data-start="1195" data-end="1211">fragile code</strong> that is harder to test, extend, and maintain.</p>
+<p data-start="1259" data-end="1402">Refactoring by <strong data-start="1274" data-end="1327">separating each responsibility into its own class</strong> restores SRP and makes each concern independently testable and changeable.</p>
+<h2 data-start="4513" data-end="4579">Refactored Example: Applying SRP by Separating Responsibilities</h2>
+<hr data-start="4581" data-end="4584" />
+<h3 data-start="7100" data-end="7117">ReportService</h3>
+<p data-start="7119" data-end="7212"><strong data-start="7119" data-end="7131">Purpose:</strong><br data-start="7131" data-end="7134" /> Coordinates the report creation workflow by delegating to specialized classes.</p>
+<p data-start="7214" data-end="7348"><strong data-start="7214" data-end="7235">How it helps SRP:</strong><br data-start="7235" data-end="7238" /> Acts as an orchestrator without taking on multiple responsibilities, preventing coupling and divergent change.</p>
+<pre class="brush:csharp;auto-links:false;toolbar:false" contenteditable="false">public class ReportService
+{
+    private readonly ReportGenerator _generator = new();
+    private readonly JsonSerializer _serializer = new();
+    private readonly FileSaver _saver = new();
+    private readonly Logger _logger = new();
+    private readonly Cache _cache = new();
+
+    public string GetReport(string reportId)
+    {
+        if (_cache.TryGet(reportId, out var cached))
+        {
+            _logger.Info($"Report {reportId} retrieved from cache.");
+            return cached;
+        }
+
+        var reportData = _generator.Generate(reportId);
+        var reportJson = _serializer.Serialize(reportData);
+
+        string path = $"report_{reportId}.json";
+        _saver.Save(reportJson, path);
+        _logger.Info($"Report {reportId} saved to {path}");
+
+        _cache.Set(reportId, reportJson, TimeSpan.FromMinutes(10));
+        return reportJson;
+    }
+}
+</pre>
+<p data-start="7214" data-end="7348">&nbsp;</p>
+<h3 data-start="157" data-end="213">Summary: How <code data-start="174" data-end="189">ReportService</code> Fixes the SRP Violation</h3>
+<p data-start="215" data-end="359">The <code data-start="219" data-end="234">ReportService</code> class acts as an <strong data-start="252" data-end="268">orchestrator</strong>, coordinating multiple well-defined components that each have a <strong data-start="333" data-end="358">single responsibility</strong>:</p>
+<ul data-start="361" data-end="752">
+<li data-start="361" data-end="441">
+<p data-start="363" data-end="441"><strong data-start="363" data-end="384"><code data-start="365" data-end="382">ReportGenerator</code></strong> handles the creation of report content (business logic).</p>
+</li>
+<li data-start="442" data-end="526">
+<p data-start="444" data-end="526"><strong data-start="444" data-end="471"><code data-start="446" data-end="469">JsonSerializer</code></strong>&nbsp;takes care of converting data to JSON (serialization).</p>
+</li>
+<li data-start="527" data-end="588">
+<p data-start="529" data-end="588"><strong data-start="529" data-end="544"><code data-start="531" data-end="542">FileSaver</code></strong> encapsulates writing to disk (persistence).</p>
+</li>
+<li data-start="589" data-end="672">
+<p data-start="591" data-end="672"><strong data-start="591" data-end="603"><code data-start="593" data-end="601">Logger</code></strong> abstracts away logging logic and dependency on a specific framework.</p>
+</li>
+<li data-start="673" data-end="752">
+<p data-start="675" data-end="752"><strong data-start="675" data-end="686"><code data-start="677" data-end="684">Cache</code></strong> manages temporary storage and retrieval of report data (caching).</p>
+</li>
+</ul>
+<p data-start="754" data-end="978">By delegating each responsibility to a specialized class, <code data-start="812" data-end="827">ReportService</code> eliminates the <strong data-start="843" data-end="869">divergent change smell</strong> found in the original <code data-start="892" data-end="907">ReportManager</code>. Each class can now be modified or tested independently &mdash; for example:</p>
+<ul data-start="980" data-end="1188">
+<li data-start="980" data-end="1059">
+<p data-start="982" data-end="1059">Swapping out the caching mechanism won't affect how the report is serialized.</p>
+</li>
+<li data-start="1060" data-end="1124">
+<p data-start="1062" data-end="1124">Updating the report structure won't impact file writing logic.</p>
+</li>
+<li data-start="1125" data-end="1188">
+<p data-start="1127" data-end="1188">Changing the logging library affects only the <code data-start="1173" data-end="1181">Logger</code> class.</p>
+</li>
+</ul>
+<p data-start="1190" data-end="1374" data-is-last-node="" data-is-only-node="">This design keeps the <strong data-start="1212" data-end="1245">business workflow centralized</strong> while preserving the <strong data-start="1267" data-end="1292">single responsibility</strong> of each collaborator, making the system easier to <strong data-start="1343" data-end="1373">extend, test, and maintain</strong>.</p>
+<h3 data-start="4586" data-end="4605">ReportGenerator</h3>
+<p data-start="4607" data-end="4683"><strong data-start="4607" data-end="4619">Purpose:</strong><br data-start="4619" data-end="4622" /> This class focuses solely on generating the core report data.</p>
+<p data-start="4685" data-end="4825"><strong data-start="4685" data-end="4706">How it helps SRP:</strong><br data-start="4706" data-end="4709" /> Changes related to report creation logic will affect only this class, preventing unrelated reasons for modification.</p>
+<pre class="brush:csharp;auto-links:false;toolbar:false" contenteditable="false">using System;
+
+public class ReportGenerator
+{
+    public ReportData Generate(string reportId)
+    {
+        return new ReportData
+        {
+            ReportId = reportId,
+            GeneratedAt = DateTime.Now,
+            Content = $"This is the content of report {reportId}."
+        };
+    }
+}
+
+public class ReportData
+{
+    public string ReportId { get; set; } = string.Empty;
+    public DateTime GeneratedAt { get; set; }
+    public string Content { get; set; } = string.Empty;
+}
+</pre>
+<p data-start="4685" data-end="4825">&nbsp;</p>
+<h3 data-start="5334" data-end="5359">JsonSerializer</h3>
+<p data-start="5361" data-end="5426"><strong data-start="5361" data-end="5373">Purpose:</strong><br data-start="5373" data-end="5376" /> Handles serialization of objects into JSON format.</p>
+<p data-start="5428" data-end="5537"><strong data-start="5428" data-end="5449">How it helps SRP:</strong><br data-start="5449" data-end="5452" /> Isolates serialization so that changes to serialization logic affect only this class.</p>
+<pre class="brush:csharp;auto-links:false;toolbar:false" contenteditable="false">using System.Text.Json;
+
+public class JsonSerializer
+{
+    public string Serialize&lt;T&gt;(T data)
+    {
+        return JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
+    }
+}
+</pre>
+<p data-start="5428" data-end="5537">&nbsp;</p>
+<h3 data-start="5773" data-end="5786">FileSaver</h3>
+<p data-start="5788" data-end="5845"><strong data-start="5788" data-end="5800">Purpose:</strong><br data-start="5800" data-end="5803" /> Manages saving content to the file system.</p>
+<p data-start="5847" data-end="5947"><strong data-start="5847" data-end="5868">How it helps SRP:</strong><br data-start="5868" data-end="5871" /> Encapsulates file persistence, so changes to storage affect only this class.</p>
+<pre class="brush:csharp;auto-links:false;toolbar:false" contenteditable="false">using System.IO;
+
+public class FileSaver
+{
+    public void Save(string content, string filePath)
+    {
+        File.WriteAllText(filePath, content);
+    }
+}
+</pre>
+<p data-start="5847" data-end="5947">&nbsp;</p>
+<h3 data-start="6126" data-end="6136">Logger</h3>
+<p data-start="6138" data-end="6197"><strong data-start="6138" data-end="6150">Purpose:</strong><br data-start="6150" data-end="6153" /> Encapsulates logging behavior using log4net.</p>
+<p data-start="6199" data-end="6291"><strong data-start="6199" data-end="6220">How it helps SRP:</strong><br data-start="6220" data-end="6223" /> Abstracts logging implementation to isolate logging-related changes.</p>
+<pre class="brush:csharp;auto-links:false;toolbar:false" contenteditable="false">using log4net;
+
+public class Logger
+{
+    private static readonly ILog _log = LogManager.GetLogger(typeof(Logger));
+
+    public void Info(string message)
+    {
+        _log.Info(message);
+    }
+}
+</pre>
+<p data-start="6199" data-end="6291">&nbsp;</p>
+<h3 data-start="6509" data-end="6518">Cache</h3>
+<p data-start="6520" data-end="6577"><strong data-start="6520" data-end="6532">Purpose:</strong><br data-start="6532" data-end="6535" /> Manages caching of data using MemoryCache.</p>
+<p data-start="6579" data-end="6664"><strong data-start="6579" data-end="6600">How it helps SRP:</strong><br data-start="6600" data-end="6603" /> Separates caching concerns to localize cache-related changes.</p>
+<pre class="brush:csharp;auto-links:false;toolbar:false" contenteditable="false">using System;
+using System.Runtime.Caching;
+
+public class Cache
+{
+    private readonly MemoryCache _cache = MemoryCache.Default;
+
+    public bool TryGet(string key, out string value)
+    {
+        value = _cache.Get(key) as string;
+        return value != null;
+    }
+
+    public void Set(string key, string value, TimeSpan duration)
+    {
+        _cache.Set(key, value, DateTimeOffset.Now.Add(duration));
+    }
+}
+</pre>
+<p data-start="6579" data-end="6664">&nbsp;</p>
+<h3 data-start="7100" data-end="7117">&nbsp;</h3>
+    </section>
+    
+    <footer class="post-footer">
+        <div class="post-tags">
+            Tags : <a href="http://coding.infoconex.com/?tag=c%23" rel="tag">c#</a>, <a href="http://coding.infoconex.com/?tag=solid+principles" rel="tag">solid principles</a>, <a href="http://coding.infoconex.com/?tag=single+responsibility+principle" rel="tag">single responsibility principle</a>
+        </div>
+        <div class="post-rating">
+            <div class="ratingcontainer" style="visibility:hidden">b07f9ae3-ad6e-45b6-9ed9-fe2bbc441fbe|0|.0|96d5b379-7e1d-4dac-a6ba-1e50db561b04</div>
+        </div>
+        <div class="post-adminlinks"></div>
+    </footer>
+    
+</article>
+
+
+  
+<div id="relatedPosts" class="related-posts well-global">
+    <h3 class="well-global-title">Related posts</h3>
+    <ul class="list-unstyled">
+        
+        <li><a href="/post/2025/06/28/single-responsibility-principle-srp">Single Responsibility Principle (SRP) - Only one reason to change</a>
+            <div><small class="text-muted">&nbsp;
+&nbsp;
+The Single Responsibility Principle is the first of the five SOLID principles of obj...</small></div>
+        </li>
+        
+        <li><a href="/post/2025/06/13/creat-better-software-by-applying-solid-principles">Create better software by applying SOLID principles</a>
+            <div><small class="text-muted">SOLID is an acronym for five design principles that are considered fundamental to object-oriented pr</small></div>
+        </li>
+        
+        <li><a href="/post/2025/06/28/open-closed-principle-ocp-building-for-extension-not-modification">Open/Closed Principle (OCP) – Building for Extension, Not Modification</a>
+            <div><small class="text-muted">&nbsp;
+The second principle in the SOLID family is the Open/Closed Principle (OCP). It&rsquo;s a si...</small></div>
+        </li>
+        
+    </ul>
+</div>
+
+  
+  
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/">
+      <rdf:Description rdf:about="http://coding.infoconex.com/post/2025/06/28/single-responsibility-principle-srp" dc:identifier="http://coding.infoconex.com/post/2025/06/28/single-responsibility-principle-srp" dc:title="Single Responsibility Principle (SRP) - Only one reason to change" trackback:ping="http://coding.infoconex.com/trackback.axd?id=b07f9ae3-ad6e-45b6-9ed9-fe2bbc441fbe" />
+    </rdf:RDF>
+  
+  
+  
+  
+  
+
+<div class="well-global">
+    
+
+    <div id="commentlist" style="display: block">
+            
+    </div>
+</div>
+
+
+
+
+    <div id="comment-form">
+        <img src="/Content/images/blog/ajax-loader.gif" width="24" height="24" alt="Saving the comment" style="display: none" id="ajaxLoader" />
+        <span id="status"></span>
+        
+<div class="comment-form well-global">
+    <h3 class="well-global-title" id="addcomment">Add comment</h3>
+    <div class="form-group">
+        <input type="text" class="form-control" placeholder="Name" name="txtName" id="txtName" />
+    </div>
+    <div class="form-group">
+        <input type="text" placeholder="E-mail" class="form-control" id="txtEmail" />
+        <span id="gravatarmsg"></span>
+    </div>
+    
+    <div class="form-group" id="commentCompose">
+        <textarea class="form-control" id="txtContent" placeholder="Comment" cols="50" rows="7" name="txtContent"></textarea>
+    </div>
+    
+    <div class="form-group comment-preview">
+        <label>Preview</label>
+        <div id="commentPreview">
+            <img src="/Content/images/blog/ajax-loader.gif" style="display: none" alt="Loading" />
+        </div>
+    </div>
+    
+    <div id="commentCaptcha" class="form-group"></div>
+    <div class="form-group">
+        <label>
+            <input type="checkbox" id="cbNotify" />
+            Notify me when new comments are added
+        </label>
+    </div>
+    <input type="button" id="btnSaveAjax" value="Save comment" class="btn btn-primary btn-block" onclick="return BlogEngine.validateAndSubmitCommentForm()" />
+</div>
+<input type="hidden" name="ctl00$cphBody$ucCommentList$hiddenReplyTo" id="ctl00_cphBody_ucCommentList_hiddenReplyTo" />
+        <p id="cancelReply" style="display: none;">
+            <a href="javascript:void(0);" onclick="BlogEngine.cancelReply();">Cancel reply to comment</a>
+        </p>
+        <p><label for="simpleCaptchaValue" style="margin-right: 5px;">5+5 = </label><input id="simpleCaptchaValue" name="simpleCaptchaValue" type="text" tabindex="0" maxlength="30" value="" /><span id="spnSimpleCaptchaIncorrect" style="display:none;color:Red;">The captcha value you provided is incorrect.
+</span></p><input type="hidden" name="ctl00$cphBody$ucCommentList$hfCaptcha" id="ctl00_cphBody_ucCommentList_hfCaptcha" value="c2bbd27c-d4cd-4820-a753-2fc8585d8ddd" />
+    </div>
+    <script type="text/javascript">
+        BlogEngine.comments.flagImage = BlogEngine.$("imgFlag");
+        BlogEngine.comments.contentBox = BlogEngine.$("txtContent");
+        BlogEngine.comments.moderation = true;
+	    BlogEngine.comments.checkName = true;
+	    BlogEngine.comments.postAuthor = "jscott";
+	    BlogEngine.comments.nameBox = BlogEngine.$("txtName");
+	    BlogEngine.comments.emailBox = BlogEngine.$("txtEmail");
+	    BlogEngine.comments.websiteBox = BlogEngine.$("txtWebsite");
+	    BlogEngine.comments.countryDropDown = BlogEngine.$("ddlCountry");
+	    BlogEngine.comments.controlId = 'ctl00$cphBody$ucCommentList';
+	    BlogEngine.comments.captchaField = BlogEngine.$('ctl00_cphBody_ucCommentList_hfCaptcha');
+        BlogEngine.comments.replyToId = BlogEngine.$("ctl00_cphBody_ucCommentList_hiddenReplyTo");
+    </script>
+
+
+<script type="text/javascript">
+    function toggle_visibility(id, id2) {
+        var e = document.getElementById(id);
+        var h = document.getElementById(id2);
+        if (e.style.display == 'block') {
+            e.style.display = 'none';
+            h.innerHTML = "+";
+        }
+        else {
+            e.style.display = 'block';
+            h.innerHTML = "-";
+        }
+    }
+</script>
+
+
+
+    
+                </div>
+            </div>
+        </div>
+        <script src="/custom/themes/standard/src/js/bootstrap.min.js"></script>
+        <script src="/custom/themes/standard/src/js/custom.js"></script>
+    
+<div class="aspNetHidden">
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="AD7AD114" />
+	<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="gqTxWQoIKB8pakC+5Sf9PsqW02hCwE8DZ8a80JuQCZEpRSAc34JSTmbFtc29zXwF2H+8tsA2YRwUiWe+i1cJiVBqPwctv8o+amOrfqPmBukOTbD36q0aUiKa1rcLDDF711H/qg==" />
+</div>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-D18H8PZ4YH"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-D18H8PZ4YH');
+</script>
+<script type="text/javascript">
+//<![CDATA[
+
+WebForm_InitCallback();//]]>
+</script>
+</form>
+</body>
+</html>

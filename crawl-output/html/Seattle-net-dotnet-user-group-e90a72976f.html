@@ -1,0 +1,432 @@
+
+<!DOCTYPE html>
+<html>
+<head><meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<link rel="contents" title="Archive" href="/archive" />
+	<link rel="start" title="Jim Scott's Coding Blog" href="/" />
+	<link type="application/rsd+xml" rel="edituri" title="RSD" href="http://coding.infoconex.com/rsd.axd" />
+	<link type="application/rdf+xml" rel="meta" title="SIOC" href="http://coding.infoconex.com/sioc.axd" />
+	<link type="application/apml+xml" rel="meta" title="APML" href="http://coding.infoconex.com/apml.axd" />
+	<link type="application/rdf+xml" rel="meta" title="FOAF" href="http://coding.infoconex.com/foaf.axd" />
+	<link type="application/rss+xml" rel="alternate" title="Jim Scott's Coding Blog (RSS)" href="http://coding.infoconex.com/syndication.axd" />
+	<link type="application/atom+xml" rel="alternate" title="Jim Scott's Coding Blog (ATOM)" href="http://coding.infoconex.com/syndication.axd?format=atom" />
+	<link type="application/opensearchdescription+xml" rel="search" title="Jim Scott's Coding Blog" href="http://coding.infoconex.com/opensearch.axd" />
+	<link href="/Content/Auto/Global.css" rel="stylesheet" type="text/css" /><meta http-equiv="X-UA-Compatible" content="IE=edge" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="theme" content="Standard" /><link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Kreon:400,700" rel="stylesheet" /><link href="../../../../Custom/Themes/Standard/src/css/bootstrap.min.css" rel="stylesheet" /><link href="../../../../Custom/Themes/Standard/src/css/font-awesome.min.css" rel="stylesheet" /><link href="../../../../Custom/Themes/Standard/src/css/styles.min.css?=v12" rel="stylesheet" /><link href="../../../../scripts/syntaxhighlighter/styles/shCore.css" rel="stylesheet" type="text/css" /><link href="../../../../scripts/syntaxhighlighter/styles/shThemeDefault.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="/en.res.axd"></script>
+	<script type="text/javascript" src="/Scripts/Auto/01-jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="/Scripts/Auto/02-jquery.cookie.js"></script>
+	<script type="text/javascript" src="/Scripts/Auto/04-jquery-jtemplates.js"></script>
+	<script type="text/javascript" src="/Scripts/Auto/05-json2.min.js"></script>
+	<script type="text/javascript" src="/Scripts/Auto/blog.js"></script>
+    <script type="text/javascript" src="/scripts/syntaxhighlighter/scripts/XRegExp.js"></script>
+    <script type="text/javascript" src="/scripts/syntaxhighlighter/scripts/shCore.js"></script>
+    <script type="text/javascript" src="/scripts/syntaxhighlighter/scripts/shAutoloader.js"></script>
+    <script type="text/javascript" src="/scripts/syntaxhighlighter/shActivator.js"></script>
+	<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4274242971173265"
+     crossorigin="anonymous"></script>
+    <link rel="shortcut icon" href="../../../../Content/images/blog/blogengine.ico" type="image/x-icon" />
+    <style>
+        body {
+            background: #232526;
+            background: -webkit-linear-gradient(to left, #414345, #232526);
+            background: linear-gradient(to left, #414345, #232526);
+        }
+    </style>	
+
+	<meta name="description" content="Jim Scott&#39;s Coding Blog - It&#39;s all about that code, that code, that code, no treble - " />
+	<meta name="author" content="Jim Scott" />
+<link rel="last" title="Open/Closed Principle (OCP) – Building for Extension, Not Modification" href="/post/2025/06/28/open-closed-principle-ocp-building-for-extension-not-modification" />
+<link rel="first" title="BlueQuartz enabling SSL/TLS FTP Support" href="/post/2008/05/27/BlueQuartz-enabling-SSLTLS-Support" />
+<link type="application/rss+xml" rel="alternate" title="Seattle .net dotnet user group (RSS)" href="/post/feed/2009/05/19/Seattle-net-dotnet-user-group?format=ATOM" />
+<link type="application/rss+xml" rel="alternate" title="Seattle .net dotnet user group (ATOM)" href="/post/feed/2009/05/19/Seattle-net-dotnet-user-group?format=ATOM" /><title>
+	Jim Scott's Coding Blog | Seattle .net dotnet user group
+</title></head>
+<body class="ltr">
+    <form method="post" action="/post/2009/05/19/Seattle-net-dotnet-user-group" id="aspnetForm">
+<div class="aspNetHidden">
+<input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="" />
+<input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="" />
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="t7qsQuhZ1iQQLEwlM3m5WBJjZ5wIwwuy58oGbEqzY3UymqnOplcioXVuB8Zt1fxw3zw0XCfml169AoW+PhiQoNNh+uyON5y/UsJr1G4SnUZZTakJikZmeIXsYrLPrrx+pykamAtVu3w8zia0dHVIIjEMnp+EBgBYGLELrKddfl/y1vY1QbrSv9DMqagkrH2YpwgcDg==" />
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['aspnetForm'];
+if (!theForm) {
+    theForm = document.aspnetForm;
+}
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]>
+</script>
+
+
+
+<script src="/res--477427567.js.axd" type="text/javascript"></script>
+
+        <div class="container">
+            <div class="blog-wrapper">
+                <aside class="blog-sidebar">
+                    <header class="blog-header">
+                        <div class="blog-info">
+                            <a class="blog-logo" href="http://coding.infoconex.com/" tabindex="-1">
+                                <img src="http://coding.infoconex.com/Custom/Themes/Standard/src/img/logo.png" alt="Jim Scott's Coding Blog" />
+                                Jim Scott's Coding Blog
+                            </a>
+                            <div class="blog-author">
+                                Software engineer that enjoys sharing with others information that was difficult to find the solution to or fun to solve
+                            </div>
+                            <ul class="social-network">
+                                <li><a href="" rel="external nofollow"><i class="fa fa-facebook"></i></a></li>
+                                <li><a href="" rel="external nofollow"><i class="fa fa-twitter"></i></a></li>
+                                <li><a href="" rel="external nofollow"><i class="fa fa-google-plus"></i></a></li>
+                                <li><a href="https://www.linkedin.com/in/jim-scott-a57782177" rel="external nofollow"><i class="fa fa-linkedin"></i></a></li>
+                                <li><a href="" rel="external nofollow"><i class="fa fa-instagram"></i></a></li>
+                                <li><a href="" rel="external nofollow"><i class="fa fa-youtube"></i></a></li>
+                                <li><a href="" rel="external nofollow"><i class="fa fa-git"></i></a></li>
+                                <li><a href="" rel="external nofollow"><i class="fa fa-pinterest"></i></a></li>
+                            </ul>
+                        </div>
+                        <nav class="blog-nav">
+                            <ul>
+                                <li><a href="http://coding.infoconex.com/" class="item-home" title="Home"><i class="fa fa-home"></i></a></li>
+                                <li><a href="http://coding.infoconex.com/archive" class="item-archive" title="Archive"><i class="fa fa-align-left"></i></a></li>
+                                <li><a href="http://coding.infoconex.com/contact" class="item-contact" title="Contact"><i class="fa fa-envelope"></i></a></li>
+                                <li><a href="/Account/login.aspx?ReturnURL=/admin/" id="ctl00_aLogin" class="item-login"><span id="ctl00_aLoginText">Log in</span></a></li>
+                            </ul>
+                        </nav>
+                    </header>			
+					<div id="amzn-assoc-ad-f5c1553d-77e4-4c0a-9b32-999befb81838"></div>
+					<script async src="//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US&adInstanceId=f5c1553d-77e4-4c0a-9b32-999befb81838"></script>
+					<div id="widgetzone_be_WIDGET_ZONE" class="widgetzone">
+<div class="Widget widget search">
+    <div class="WidgetContent widget-content">
+        <div id="searchbox">
+            <input type="text" id="txt-9b8e773d-ac1f-4255-9ef3-c298a852388e" placeholder="Search..." onkeypress="if (event.keyCode == 13) { BlogEngine.search('/', 'txt-9b8e773d-ac1f-4255-9ef3-c298a852388e'); return false; }" />
+            <input type="button" onkeypress="BlogEngine.search('/', 'txt-9b8e773d-ac1f-4255-9ef3-c298a852388e');" onclick="BlogEngine.search('/', 'txt-9b8e773d-ac1f-4255-9ef3-c298a852388e');" id="searchbutton" value="Search" />
+        </div>
+    </div>
+</div>
+<div class="Widget widget tagcloud">
+    <h4 class="WidgetHeader widget-header">TagCloud</h4>
+    <div class="WidgetContent widget-content">
+        <ul>
+            <li><a href="http://coding.infoconex.com/?tag=.net" class="small" title="Tag: .net">.net</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=Azure" class="small" title="Tag: Azure">Azure</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=BlueOnyx" class="small" title="Tag: BlueOnyx">BlueOnyx</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=bluequartz" class="small" title="Tag: bluequartz">bluequartz</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=c%23" class="biggest" title="Tag: c#">c#</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=design+patterns" class="medium" title="Tag: design patterns">design patterns</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=ebook" class="small" title="Tag: ebook">ebook</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=Hyper-V" class="small" title="Tag: Hyper-V">Hyper-V</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=LINQPad" class="medium" title="Tag: LINQPad">LINQPad</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=Linux" class="small" title="Tag: Linux">Linux</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=mono" class="small" title="Tag: mono">mono</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=open+closed+principle" class="medium" title="Tag: open closed principle">open closed principle</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=quota" class="small" title="Tag: quota">quota</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=Roundcube" class="small" title="Tag: Roundcube">Roundcube</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=secure+ftp" class="small" title="Tag: secure ftp">secure ftp</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=single+responsibility+principle" class="medium" title="Tag: single responsibility principle">single responsibility principle</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=solid+principles" class="medium" title="Tag: solid principles">solid principles</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=SQL" class="small" title="Tag: SQL">SQL</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=SSL" class="small" title="Tag: SSL">SSL</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=virus+scanning" class="small" title="Tag: virus scanning">virus scanning</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=Visual+Studio" class="small" title="Tag: Visual Studio">Visual Studio</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=WCF" class="small" title="Tag: WCF">WCF</a> </li>
+            <li><a href="http://coding.infoconex.com/?tag=Windows+8" class="small" title="Tag: Windows 8">Windows 8</a> </li>
+        </ul>
+    </div>
+</div>
+<style>
+    .recentcomments li a:last-child {
+        display: inline !important;
+    }
+</style>
+<div class="Widget widget recentcomments">
+    <h4 class="WidgetHeader widget-header">CommentList</h4>
+    <div class="WidgetContent widget-content">
+        <ul id="recentComments" class="recentcomments">
+                        <li>
+                            <a href="/post/2009/11/26/Automatically-attaching-VHD-files-in-Windows-7-and-Windows-2008#comment">Automatically attaching VHD files in Windows 7 and Windows 2008</a> (11)
+                            <br />shillinout wrote: Thanks for the info.  How would I attach multiple ... 
+                        </li>
+                        <li>
+                            <a href="/post/2012/06/01/Getting-LINQPad-to-read-your-applications-AppConfig-settings#comment">Getting LINQPad to read your applications App.Config settings</a> (5)
+                            <br />rekna wrote: There is another option available:
+simply by addi... 
+                        </li>
+                        <li>
+                            <a href="/post/2011/05/25/Fix-error-Failed-to-generate-a-user-instance-of-SQL-Server-due-to-a-failure-in-starting-the-process-for-the-user-instance#comment">Fix error:  Failed to generate a user instance of SQL Server due to a failure in starting the process for the user instance.</a> (2)
+                            <br />Davide wrote: Thanks!! You're awesome. That's what I needed!!! 
+                        </li>
+                        <li>
+                            <a href="/post/2012/06/01/Getting-LINQPad-to-read-your-applications-AppConfig-settings#comment">Getting LINQPad to read your applications App.Config settings</a> (5)
+                            <br />Anthony Ortega wrote: Very useful. Keep up the good work! 
+                        </li>
+                        <li>
+                            <a href="/post/2010/04/26/Bind-DNS-e28093-Configuring-multiple-views-on-primary-and-secondary-DNS-servers#comment">Bind DNS – Configuring multiple views on primary and secondary DNS servers</a> (1)
+                            <br />George Vareltzis wrote: Excellent post. I faced the same situation and tri... 
+                        </li>
+                        <li>
+                            <a href="/post/2013/01/08/Windows-8-Hyper-V-errors-with-could-not-be-started-because-the-hypervisor-is-not-running#comment">Windows 8 Hyper-V errors with &quot;could not be started because the hypervisor is not running&quot;</a> (1)
+                            <br />Zack wrote: thank you so much, that was exactly what my system... 
+                        </li>
+                        <li>
+                            <a href="/post/2012/06/01/Getting-LINQPad-to-read-your-applications-AppConfig-settings#comment">Getting LINQPad to read your applications App.Config settings</a> (5)
+                            <br />Joe Albahari wrote: Spot on: LINQPad.config is for your queries.
+
+LI... 
+                        </li>
+                        <li>
+                            <a href="/post/2009/01/14/C-Traceroute-using-net-framework#comment">C# Traceroute using .net framework</a> (5)
+                            <br />jscott wrote: RobRdam, thanks for the comment. I will fixup the ... 
+                        </li>
+                        <li>
+                            <a href="/post/2009/01/14/C-Traceroute-using-net-framework#comment">C# Traceroute using .net framework</a> (5)
+                            <br />RobRdam wrote: For those who are like me not familiar with the St... 
+                        </li>
+                        <li>
+                            <a href="/post/2012/06/01/Getting-LINQPad-to-read-your-applications-AppConfig-settings#comment">Getting LINQPad to read your applications App.Config settings</a> (5)
+                            <br />Matthew Cooper wrote: Thank you soo much!!!! 
+                        </li>
+                <li>
+                    <a href="/syndication.axd?comments=true">
+                        Comment RSS <img alt="" src="/Content/images/blog/rssButton.png">
+                    </a>
+                </li>
+        </ul>
+    </div>
+</div></div>
+                    <footer class="blog-footer">
+                        <p>
+                            Copyright &copy; 2026
+                        </p>
+                        <p>
+                            Powered by <a href="http://dotnetblogengine.net/" target="_blank" title="BlogEngine.NET 3.3.5.0">BlogEngine.NET</a>
+                        </p>
+                        <p>
+                            Designed by <a href="http://francis.bio/" rel="nofollow" target="_blank">Francis Bio</a>
+                        </p>
+                    </footer>
+                </aside>
+                <div class="blog-content admin-alerts-false">
+                    
+  
+  
+
+  
+<div id="postnavigation" class="navigation-posts well-global clearfix">
+    <div class="text-left next-post">
+        
+        <a href="/post/2009/05/22/Code-Camp-coming-to-Portland-May-30th2c-2009-at-Reed-College" class="nav-next">&larr; Code Camp coming to Portland May 30th, 2009 at Reed College </a>
+        
+    </div>
+    <div class="text-right prev-post ">
+        
+        <a href="/post/2009/04/21/How-do-I-open-a-file-that-is-in-use-in-C" class="nav-prev">How do I open a file that is in use in C#? &rarr;</a>
+        
+    </div>
+</div>
+
+ 
+  
+
+<article class="post" id="post0">	
+    <header class="post-header">
+        <h2 class="post-title">
+            <a href="/post/2009/05/19/Seattle-net-dotnet-user-group">Seattle .net dotnet user group</a>
+        </h2>
+        <div class="post-info clearfix">
+            <span class="post-date">19 May 2009</span>
+            <span class="post-author"><a href="http://coding.infoconex.com/author/jscott">jscott</a></span>
+            <span class="post-category"></span>
+        </div>
+    </header>
+    <section class="post-body text">
+        <p>
+Great new user group that is getting started and it is in Seattle.&nbsp;Was hosted at Starbucks who provided a top notch facility for the meeting. About 25 people showed up and&nbsp; speaker <a href="http://blogs.msdn.com/charles_sterling/">Charles Sterling</a>&nbsp; gave us a great presentation walking us through the new testing tools in Microsoft Visual Studio Team Systems 2010.&nbsp; 
+</p>
+<p>
+Highly recommend this to anyone involved in .NET development and located in or around Seattle. 
+</p>
+<p>
+<a href="http://seattledotnet.org/">http://seattledotnet.org/</a> 
+</p>
+<p>
+They also have a facebook group 
+</p>
+<p>
+<a href="http://www.facebook.com/group.php?gid=78132511486">http://www.facebook.com/group.php?gid=78132511486</a> 
+</p>
+
+    </section>
+    
+    <footer class="post-footer">
+        <div class="post-tags">
+            Tags : 
+        </div>
+        <div class="post-rating">
+            <div class="ratingcontainer" style="visibility:hidden">e7efebc2-c92c-42a7-82c1-80f87f7092a6|0|.0|96d5b379-7e1d-4dac-a6ba-1e50db561b04</div>
+        </div>
+        <div class="post-adminlinks"></div>
+    </footer>
+    
+</article>
+
+
+  
+<div id="relatedPosts" class="related-posts well-global">
+    <h3 class="well-global-title">Related posts</h3>
+    <ul class="list-unstyled">
+        
+        <li><a href="/post/2009/07/05/Seattle-NET-User-Group-July-8th-2009-Meeting-ASPNET-MVC-Framework-by-Brad-Wilson">Seattle .NET User Group - July 8th 2009 Meeting - ASP.NET MVC Framework by Brad Wilson</a>
+            <div><small class="text-muted">Topic:&nbsp; ASP.NET MVC. 
+
+
+Abstract:
+ASP.NET MVC is a new web development framework from the A...</small></div>
+        </li>
+        
+        <li><a href="/post/2009/08/26/Seattle-Dot-Net-User-Group-Sept-9th-2009-Meeting-NET-Troubleshooting-in-a-Production-Environment">Seattle Dot Net User Group - Sept 9th 2009 Meeting - .NET Troubleshooting in a Production Environment</a>
+            <div><small class="text-muted">&nbsp;For more information visit user group website http://seattledotnet.org/
+Topic: .NET Troublesh...</small></div>
+        </li>
+        
+        <li><a href="/post/2009/05/19/Seattle-net-dotnet-user-group">Seattle .net dotnet user group</a>
+            <div><small class="text-muted">Great new user group that is getting started and it is in Seattle.&nbsp;Was hosted at Starbucks who ...</small></div>
+        </li>
+        
+    </ul>
+</div>
+
+  
+  
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/">
+      <rdf:Description rdf:about="http://coding.infoconex.com/post/2009/05/19/Seattle-net-dotnet-user-group" dc:identifier="http://coding.infoconex.com/post/2009/05/19/Seattle-net-dotnet-user-group" dc:title="Seattle .net dotnet user group" trackback:ping="http://coding.infoconex.com/trackback.axd?id=e7efebc2-c92c-42a7-82c1-80f87f7092a6" />
+    </rdf:RDF>
+  
+  
+  
+  
+  
+
+<div class="well-global">
+    
+
+    <div id="commentlist" style="display: block">
+            
+    </div>
+</div>
+
+
+
+
+    <div id="comment-form">
+        <img src="/Content/images/blog/ajax-loader.gif" width="24" height="24" alt="Saving the comment" style="display: none" id="ajaxLoader" />
+        <span id="status"></span>
+        
+<div class="comment-form well-global">
+    <h3 class="well-global-title" id="addcomment">Add comment</h3>
+    <div class="form-group">
+        <input type="text" class="form-control" placeholder="Name" name="txtName" id="txtName" />
+    </div>
+    <div class="form-group">
+        <input type="text" placeholder="E-mail" class="form-control" id="txtEmail" />
+        <span id="gravatarmsg"></span>
+    </div>
+    
+    <div class="form-group" id="commentCompose">
+        <textarea class="form-control" id="txtContent" placeholder="Comment" cols="50" rows="7" name="txtContent"></textarea>
+    </div>
+    
+    <div class="form-group comment-preview">
+        <label>Preview</label>
+        <div id="commentPreview">
+            <img src="/Content/images/blog/ajax-loader.gif" style="display: none" alt="Loading" />
+        </div>
+    </div>
+    
+    <div id="commentCaptcha" class="form-group"></div>
+    <div class="form-group">
+        <label>
+            <input type="checkbox" id="cbNotify" />
+            Notify me when new comments are added
+        </label>
+    </div>
+    <input type="button" id="btnSaveAjax" value="Save comment" class="btn btn-primary btn-block" onclick="return BlogEngine.validateAndSubmitCommentForm()" />
+</div>
+<input type="hidden" name="ctl00$cphBody$ucCommentList$hiddenReplyTo" id="ctl00_cphBody_ucCommentList_hiddenReplyTo" />
+        <p id="cancelReply" style="display: none;">
+            <a href="javascript:void(0);" onclick="BlogEngine.cancelReply();">Cancel reply to comment</a>
+        </p>
+        <p><label for="simpleCaptchaValue" style="margin-right: 5px;">5+5 = </label><input id="simpleCaptchaValue" name="simpleCaptchaValue" type="text" tabindex="0" maxlength="30" value="" /><span id="spnSimpleCaptchaIncorrect" style="display:none;color:Red;">The captcha value you provided is incorrect.
+</span></p><input type="hidden" name="ctl00$cphBody$ucCommentList$hfCaptcha" id="ctl00_cphBody_ucCommentList_hfCaptcha" value="70857187-cfd2-4e6b-bdbe-056cd87e2f34" />
+    </div>
+    <script type="text/javascript">
+        BlogEngine.comments.flagImage = BlogEngine.$("imgFlag");
+        BlogEngine.comments.contentBox = BlogEngine.$("txtContent");
+        BlogEngine.comments.moderation = true;
+	    BlogEngine.comments.checkName = true;
+	    BlogEngine.comments.postAuthor = "jscott";
+	    BlogEngine.comments.nameBox = BlogEngine.$("txtName");
+	    BlogEngine.comments.emailBox = BlogEngine.$("txtEmail");
+	    BlogEngine.comments.websiteBox = BlogEngine.$("txtWebsite");
+	    BlogEngine.comments.countryDropDown = BlogEngine.$("ddlCountry");
+	    BlogEngine.comments.controlId = 'ctl00$cphBody$ucCommentList';
+	    BlogEngine.comments.captchaField = BlogEngine.$('ctl00_cphBody_ucCommentList_hfCaptcha');
+        BlogEngine.comments.replyToId = BlogEngine.$("ctl00_cphBody_ucCommentList_hiddenReplyTo");
+    </script>
+
+
+<script type="text/javascript">
+    function toggle_visibility(id, id2) {
+        var e = document.getElementById(id);
+        var h = document.getElementById(id2);
+        if (e.style.display == 'block') {
+            e.style.display = 'none';
+            h.innerHTML = "+";
+        }
+        else {
+            e.style.display = 'block';
+            h.innerHTML = "-";
+        }
+    }
+</script>
+
+
+
+    
+                </div>
+            </div>
+        </div>
+        <script src="/custom/themes/standard/src/js/bootstrap.min.js"></script>
+        <script src="/custom/themes/standard/src/js/custom.js"></script>
+    
+<div class="aspNetHidden">
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="AD7AD114" />
+	<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="xoA4W2GGWrCZtvH2Zc/HvA6erogwFnjndm9tJmxtFgRosnIsh5OysK9Z91O6999NmZjFYJnFtZfOMOiJwzBSAVzwUNS2FWqNi+sX5KFNy4448nyFIP7DzOOhvHDauXjLOI8aIQ==" />
+</div>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-D18H8PZ4YH"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-D18H8PZ4YH');
+</script>
+<script type="text/javascript">
+//<![CDATA[
+
+WebForm_InitCallback();//]]>
+</script>
+</form>
+</body>
+</html>
