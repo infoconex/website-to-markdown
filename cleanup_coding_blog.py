@@ -6,6 +6,11 @@ repository should own its eventual publishing stack. This utility removes only
 known artifacts created by bootstrap_static_site.py and preserves the content
 validator under scripts/.
 
+The staged legacy-redirects.json manifest is also removed because redirect
+source-of-truth lives in each post's legacyPaths frontmatter. The eventual
+GitHub Pages build can generate whatever redirect artifacts it needs from that
+frontmatter.
+
 Dry-run is the default. Pass --apply to make changes.
 """
 
@@ -68,7 +73,7 @@ def remove_file(path: Path, *, apply: bool, reason: str) -> None:
 def remove_tree(path: Path, *, apply: bool, reason: str) -> None:
     if not path.exists():
         return
-    print(f"REMOVE  {path}{path.anchor and '' or ''}  ({reason})")
+    print(f"REMOVE  {path}  ({reason})")
     if apply:
         shutil.rmtree(path)
 
@@ -162,6 +167,15 @@ def main() -> int:
         print(f"KEEP    {site_css}  (not recognized as our bootstrap stylesheet)")
 
     remove_tree(dest / "_site", apply=apply, reason="generated static build output")
+
+    # This manifest is generated from the same legacyPaths frontmatter that the
+    # validator already checks. Keep only the canonical frontmatter source; the
+    # future Pages build can regenerate redirect artifacts in its own format.
+    remove_file(
+        dest / "legacy-redirects.json",
+        apply=apply,
+        reason="generated redirect manifest; legacyPaths frontmatter is canonical",
+    )
 
     move_validator(dest, apply=apply)
 
