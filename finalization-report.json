@@ -1,0 +1,22 @@
+{
+  "crawl_inventory_count": 62,
+  "captured_source_count": 61,
+  "generated_manifest_count": 61,
+  "generated_markdown_file_count": 61,
+  "duplicate_slugs": [],
+  "unavailable_source_entries": [
+    {
+      "url": "http://coding.infoconex.com/post/2023/02/13/creat-better-software-by-applying-solid-principles",
+      "title": "Create better software by applying SOLID principles",
+      "status": 404,
+      "html_file": null
+    }
+  ],
+  "internal_links_rewritten": 2,
+  "unresolved_legacy_links": {
+    "open-closed-principle-ocp-building-for-extension-not-modification.md": [
+      "/post/2023/02/13/creat-better-software-by-applying-solid-principles"
+    ]
+  },
+  "check_only": false
+}

@@ -23,7 +23,7 @@ The Single Responsibility Principle (SRP) states that a class should have only o
 
 If a class has multiple responsibilities, it becomes harder to change the class without affecting other parts of the system. This can lead to a situation where a change in one part of the codebase leads to unintended consequences in other parts of the system. By adhering to the SRP, each class has a clear and distinct purpose, making it easier to modify and maintain.
 
-Read Article: [Single Responsibility Principle (SRP) - Only one reason to change](/post/2025/06/28/single-responsibility-principle-srp "Single Responsibility Principle")
+Read Article: [Single Responsibility Principle (SRP) - Only one reason to change](/blog/single-responsibility-principle-srp-only-one-reason-to-change "Single Responsibility Principle")
 
 2. **Open-Closed Principle (OCP)**
 
@@ -31,7 +31,7 @@ The Open-Closed Principle (OCP) states that classes should be open for extension
 
 This principle encourages the use of inheritance and interfaces to create a more flexible and extensible design. By designing classes in this way, it becomes easier to add new features to the system without having to modify existing code. This can lead to a more maintainable and scalable codebase.
 
-Read Article: [Open/Closed Principle (OCP) – Building for Extension, Not Modification](/post/2025/06/28/open-closed-principle-ocp-building-for-extension-not-modification)
+Read Article: [Open/Closed Principle (OCP) – Building for Extension, Not Modification](/blog/open-closed-principle-ocp-building-for-extension-not-modification)
 
 3. **Liskov Substitution Principle (LSP)**
 
