@@ -14,7 +14,7 @@ import yaml
 MARKDOWN_DIR = Path("generated-markdown")
 ASSET_ROOT = Path("generated-assets/images/posts")
 REQUIRED_FIELDS = ("title", "date", "description", "tags", "slug", "author", "originalUrl", "legacyPaths")
-DATED_LEGACY_RE = re.compile(r"^/post/\d{4}/\d{2}/\d{2}/[^/]+/?$", re.I)
+DATED_POST_RE = re.compile(r"^/post/\d{4}/\d{2}/\d{2}/[^/]+/?$", re.I)
 MD_LINK_RE = re.compile(r"!?\[[^\]]*\]\((?P<url>[^)\s]+)")
 HTML_SRC_RE = re.compile(r"(?:src|href)=[\"'](?P<url>[^\"']+)[\"']", re.I)
 LEGACY_HOSTS = {"coding.infoconex.com", "www.coding.infoconex.com"}
@@ -40,12 +40,17 @@ def local_urls(body: str) -> list[str]:
 
 
 def is_legacy_host_link(url: str) -> bool:
-    """Return True only when the actual link target is the historical blog host."""
     value = (url or "").strip()
     if value.startswith("//"):
         value = "http:" + value
     parsed = urlsplit(value)
     return (parsed.hostname or "").lower() in LEGACY_HOSTS and parsed.path.lower().startswith("/post/")
+
+
+def route_key(path: str) -> str:
+    clean = path.split("#", 1)[0].split("?", 1)[0].rstrip("/")
+    clean = re.sub(r"\.aspx$", "", clean, flags=re.I)
+    return clean.lower()
 
 
 def main() -> int:
@@ -59,7 +64,7 @@ def main() -> int:
     slugs: list[str] = []
     legacy_owners: dict[str, list[str]] = defaultdict(list)
     bodies: dict[str, str] = {}
-    metadata: dict[str, dict] = {}
+    public_routes: dict[str, str] = {}
 
     for path in files:
         try:
@@ -68,9 +73,7 @@ def main() -> int:
             errors.append(f"{path.name}: {exc}")
             continue
 
-        metadata[path.name] = data
         bodies[path.name] = body
-
         missing = [field for field in REQUIRED_FIELDS if field not in data]
         if missing:
             errors.append(f"{path.name}: missing frontmatter fields: {', '.join(missing)}")
@@ -89,8 +92,7 @@ def main() -> int:
         except ValueError:
             errors.append(f"{path.name}: invalid ISO date {raw_date!r}")
 
-        tags = data.get("tags")
-        if not isinstance(tags, list):
+        if not isinstance(data.get("tags"), list):
             errors.append(f"{path.name}: tags must be a list")
 
         legacy_paths = data.get("legacyPaths")
@@ -99,9 +101,7 @@ def main() -> int:
             legacy_paths = []
         for legacy in legacy_paths:
             legacy = str(legacy)
-            if not legacy.startswith("/"):
-                errors.append(f"{path.name}: legacyPath must be root-relative: {legacy}")
-            if not DATED_LEGACY_RE.match(legacy):
+            if not DATED_POST_RE.match(legacy):
                 errors.append(f"{path.name}: legacyPath is not dated BlogEngine form: {legacy}")
             legacy_owners[legacy].append(slug or path.stem)
 
@@ -109,8 +109,14 @@ def main() -> int:
         parsed = urlsplit(original_url)
         if parsed.hostname not in LEGACY_HOSTS:
             errors.append(f"{path.name}: unexpected originalUrl host: {original_url}")
-        elif parsed.path and parsed.path not in legacy_paths:
-            warnings.append(f"{path.name}: originalUrl path is not listed verbatim in legacyPaths: {parsed.path}")
+        elif not DATED_POST_RE.match(parsed.path):
+            errors.append(f"{path.name}: originalUrl is not a dated BlogEngine post URL: {original_url}")
+        else:
+            key = route_key(parsed.path)
+            owner = public_routes.get(key)
+            if owner and owner != path.name:
+                errors.append(f"historical public path collision: {parsed.path} -> {owner}, {path.name}")
+            public_routes[key] = path.name
 
         for url in local_urls(body):
             clean = url.split("#", 1)[0].split("?", 1)[0]
@@ -127,10 +133,8 @@ def main() -> int:
                     asset = ASSET_ROOT / slug / rel
                     if not asset.is_file():
                         errors.append(f"{path.name}: missing image asset: {clean}")
-            if re.match(r"^/post/\d{4}/\d{2}/\d{2}/", clean, re.I):
-                errors.append(f"{path.name}: unresolved dated legacy link remains in body: {url}")
             if is_legacy_host_link(url):
-                errors.append(f"{path.name}: unresolved legacy-host link remains in body: {url}")
+                errors.append(f"{path.name}: historical-host link should be root-relative: {url}")
 
     for slug, count in Counter(slugs).items():
         if count > 1:
@@ -140,16 +144,17 @@ def main() -> int:
         if len(set(owners)) > 1:
             errors.append(f"legacyPath collision: {legacy} -> {', '.join(sorted(set(owners)))}")
 
-    known_slugs = set(slugs)
     for name, body in bodies.items():
         for url in local_urls(body):
-            clean = url.split("#", 1)[0].split("?", 1)[0].rstrip("/")
-            m = re.match(r"^/post/([^/]+)$", clean)
-            if m and m.group(1) not in known_slugs:
-                errors.append(f"{name}: broken canonical internal link: {url}")
+            clean = url.split("#", 1)[0].split("?", 1)[0]
+            if DATED_POST_RE.match(clean) and route_key(clean) not in public_routes:
+                errors.append(f"{name}: broken historical internal link: {url}")
+            elif re.match(r"^/post/[^/]+/?$", clean, re.I):
+                errors.append(f"{name}: non-historical canonical post link remains: {url}")
 
     print(f"Posts checked:             {len(files)}")
     print(f"Unique slugs:              {len(set(slugs))}")
+    print(f"Confirmed public paths:    {len(public_routes)}")
     print(f"Unique legacy paths:       {len(legacy_owners)}")
     print(f"Errors:                    {len(errors)}")
     print(f"Warnings:                  {len(warnings)}")
