@@ -1,21 +1,20 @@
 #!/usr/bin/env python3
-"""Normalize migrated list layout to renderer-neutral Markdown.
+"""Normalize migrated list layout to canonical four-space Markdown nesting.
 
 The historical BlogEngine/Windows Live Writer content contains numbered steps,
-nested bullet lists, paragraphs, code-like command lines, and screenshots.
-markdownify generally preserves the intended hierarchy but may emit inconsistent
-indentation and missing blank separators.
+nested bullet lists, paragraphs, command lines, and screenshots. markdownify
+preserves most of that hierarchy but may emit inconsistent indentation and
+missing blank separators.
 
-This pass uses the Markdown list content column rather than renderer-specific
-indentation rules:
+This pass standardizes the source Markdown independent of any renderer:
 
-* continuation content under ``1. item`` -> 3 spaces
-* nested bullet beneath a numbered item -> 3 spaces
-* continuation content beneath ``   - item`` -> 5 spaces
+* continuation content beneath a top-level numbered item -> 4 spaces
+* nested unordered-list items -> 4 spaces
+* continuation content beneath a nested unordered-list item -> 8 spaces
 * sibling nested bullets are separated after block content such as screenshots
 
-The result is intended to be the canonical source Markdown. Presentation belongs
-to the eventual publishing system, not this migration step.
+The result is canonical source Markdown. Presentation belongs to the publishing
+system and should not be encoded here with renderer-specific CSS workarounds.
 """
 
 from __future__ import annotations
@@ -39,6 +38,11 @@ def with_indent(line: str, spaces: int) -> str:
 
 
 def normalize_indentation(lines: list[str]) -> tuple[list[str], int]:
+    """Normalize one- and two-level list indentation to 4/8 spaces.
+
+    The pass is idempotent: already-normalized 4/8-space content remains
+    unchanged on subsequent runs.
+    """
     out = list(lines)
     changed = 0
 
@@ -60,8 +64,10 @@ def normalize_indentation(lines: list[str]) -> tuple[list[str], int]:
             indent = leading_spaces(line)
             unordered = UNORDERED_RE.match(line)
 
-            if unordered and indent >= 2:
-                new_line = with_indent(line, 3)
+            # Any indented unordered-list marker inside the numbered item is a
+            # second-level bullet and belongs at the first four-space level.
+            if unordered and indent > 0:
+                new_line = with_indent(line, 4)
                 if new_line != line:
                     out[i] = new_line
                     changed += 1
@@ -69,8 +75,11 @@ def normalize_indentation(lines: list[str]) -> tuple[list[str], int]:
                 i += 1
                 continue
 
-            if indent >= 2:
-                target = 5 if in_nested_item else 3
+            # Other indented lines are continuation content. Once a nested
+            # bullet has begun, its continuation belongs at the second nesting
+            # level; otherwise it belongs directly to the numbered item.
+            if indent > 0:
+                target = 8 if in_nested_item else 4
                 new_line = with_indent(line, target)
                 if new_line != line:
                     out[i] = new_line
@@ -87,7 +96,7 @@ def insert_nested_list_boundaries(lines: list[str]) -> tuple[list[str], int]:
     inserted = 0
 
     for line in lines:
-        is_nested_bullet = bool(UNORDERED_RE.match(line)) and leading_spaces(line) == 3
+        is_nested_bullet = bool(UNORDERED_RE.match(line)) and leading_spaces(line) == 4
         if is_nested_bullet:
             j = len(out) - 1
             while j >= 0 and not out[j].strip():
@@ -95,7 +104,7 @@ def insert_nested_list_boundaries(lines: list[str]) -> tuple[list[str], int]:
             if j >= 0:
                 previous = out[j]
                 previous_is_block = (
-                    leading_spaces(previous) >= 5
+                    leading_spaces(previous) >= 8
                     or bool(IMAGE_RE.match(previous.lstrip(" ")))
                 )
                 if previous_is_block and out and out[-1].strip():
@@ -117,8 +126,8 @@ def normalize_markdown(text: str) -> tuple[str, int, int]:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--markdown-dir", type=Path, default=DEFAULT_MARKDOWN_DIR)
-    # Retained for command-line compatibility with earlier migration runs. The
-    # canonical Markdown normalizer no longer patches destination CSS.
+    # Retained for compatibility with earlier commands. No destination CSS is
+    # modified; this script now operates only on canonical Markdown source.
     parser.add_argument("--destination", type=Path, help=argparse.SUPPRESS)
     args = parser.parse_args()
 
