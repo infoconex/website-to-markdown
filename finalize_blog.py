@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Finalize and audit generated historical blog Markdown.
 
-Rewrites internal BlogEngine links to the confirmed historical URL of the
-captured destination post, adds legacyPaths frontmatter for confirmed historical
-URLs, and writes a reconciliation report. Discovered-but-unavailable URLs are
-reported but are not treated as valid historical aliases.
+Rewrites internal BlogEngine links, including previously generated /post/<slug>
+links, to the confirmed historical URL of the captured destination post. Adds
+legacyPaths frontmatter for confirmed historical URLs and writes a reconciliation
+report. Discovered-but-unavailable URLs are reported but are not treated as
+valid historical aliases.
 """
 
 from __future__ import annotations
@@ -66,8 +67,30 @@ def normalize_legacy_path(url_or_path: str) -> str | None:
     return re.sub(r"\.aspx$", "", path, flags=re.I)
 
 
+def rewrite_key(url_or_path: str) -> str | None:
+    value = html_lib.unescape((url_or_path or "").strip())
+    if not value:
+        return None
+    if value.startswith("//"):
+        value = "http:" + value
+    parsed = urlsplit(value)
+    if parsed.scheme or parsed.netloc:
+        if (parsed.hostname or "").lower() not in LEGACY_HOSTS:
+            return None
+        path = parsed.path
+    else:
+        path = value.split("?", 1)[0].split("#", 1)[0]
+    path = re.sub(r"/{2,}", "/", path).rstrip("/")
+    if re.match(r"^/post/\d{4}/\d{2}/\d{2}/", path, re.I):
+        path = re.sub(r"\.aspx$", "", path, flags=re.I)
+        return path.lower()
+    if re.match(r"^/post/[^/]+$", path, re.I):
+        return path.lower()
+    return None
+
+
 def build_route_map(crawl: list[dict[str, Any]]) -> dict[str, str]:
-    """Map any recognized form of a captured historical link to its exact captured path."""
+    """Map dated and previously generated canonical routes to exact captured paths."""
     route_map: dict[str, str] = {}
     for entry in crawl:
         if entry.get("status") != 200 or not entry.get("html_file"):
@@ -75,8 +98,10 @@ def build_route_map(crawl: list[dict[str, Any]]) -> dict[str, str]:
         raw_url = str(entry.get("url") or "")
         lookup = normalize_legacy_path(raw_url)
         destination = exact_historical_path(raw_url)
+        title = str(entry.get("title") or "")
         if lookup and destination:
             route_map[lookup.lower()] = destination
+            route_map[f"/post/{slugify(title)}".lower()] = destination
     return route_map
 
 
@@ -130,16 +155,17 @@ def rewrite_markdown(text: str, route_map: dict[str, str]) -> tuple[str, int, se
     def md_repl(match: re.Match[str]) -> str:
         nonlocal rewritten
         raw = match.group("url")
-        if not is_legacy_post_link(raw):
+        key = rewrite_key(raw)
+        if not key:
             return match.group(0)
-        path = normalize_legacy_path(raw)
-        destination = route_map.get((path or "").lower())
+        destination = route_map.get(key)
         if destination:
             replacement = match.group("prefix") + destination
             if replacement != match.group(0):
                 rewritten += 1
             return replacement
-        unresolved.add(raw)
+        if re.match(r"^/post/\d{4}/\d{2}/\d{2}/", urlsplit(raw).path or raw, re.I):
+            unresolved.add(raw)
         return match.group(0)
 
     text = md_pattern.sub(md_repl, text)
@@ -151,16 +177,17 @@ def rewrite_markdown(text: str, route_map: dict[str, str]) -> tuple[str, int, se
     def html_repl(match: re.Match[str]) -> str:
         nonlocal rewritten
         raw = match.group("url")
-        if not is_legacy_post_link(raw):
+        key = rewrite_key(raw)
+        if not key:
             return match.group(0)
-        path = normalize_legacy_path(raw)
-        destination = route_map.get((path or "").lower())
+        destination = route_map.get(key)
         if destination:
             replacement = match.group("prefix") + destination + match.group("suffix")
             if replacement != match.group(0):
                 rewritten += 1
             return replacement
-        unresolved.add(raw)
+        if re.match(r"^/post/\d{4}/\d{2}/\d{2}/", urlsplit(raw).path or raw, re.I):
+            unresolved.add(raw)
         return match.group(0)
 
     text = html_pattern.sub(html_repl, text)
