@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
-"""Stage the finalized historical blog migration into a local coding-blog checkout.
+"""Stage finalized historical blog content into a clean static-site repository.
 
-Copies generated Markdown into <coding-blog>/posts and source-controlled image
-assets into <coding-blog>/assets/posts/images. The destination app is updated to
-read Markdown from /posts and to copy post image assets into public/images/posts
-before dev/build so browser-facing image URLs remain /images/posts/....
+Destination layout:
 
-Also switches article-detail links to /post/<slug>, preserves /blog as the listing
-route, redirects old /blog/<slug> article URLs, and generates middleware redirects
-from legacyPaths frontmatter.
+  posts/<slug>/index.md
+  posts/<slug>/images/*
+  assets/images/
+  assets/js/
+  assets/css/
+
+Post-specific images are moved beside each post and Markdown references are
+rewritten to relative images/... paths. Global assets remain under assets/.
+No framework-specific files, middleware, or public/ copies are created.
 """
 
 from __future__ import annotations
@@ -22,11 +25,13 @@ from pathlib import Path
 SOURCE_MD = Path("generated-markdown")
 SOURCE_ASSETS = Path("generated-assets/images/posts")
 REPORT = Path("finalization-report.json")
+EXPECTED_POSTS = 61
 
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser()
-    p.add_argument("destination", type=Path, help="Path to local infoconex/coding-blog checkout")
+    p.add_argument("destination", type=Path, help="Path to local coding-blog checkout")
+    p.add_argument("--clean-posts", action="store_true", help="Remove destination posts/ before staging")
     return p.parse_args()
 
 
@@ -38,8 +43,11 @@ def validate_source() -> None:
         raise SystemExit("Migration report still has duplicate slugs")
     if report.get("unresolved_legacy_links"):
         raise SystemExit("Migration report still has unresolved legacy links")
-    if report.get("generated_markdown_file_count") != 61:
-        raise SystemExit(f"Expected 61 generated Markdown files, found {report.get('generated_markdown_file_count')}")
+    if report.get("generated_markdown_file_count") != EXPECTED_POSTS:
+        raise SystemExit(
+            f"Expected {EXPECTED_POSTS} generated Markdown files, "
+            f"found {report.get('generated_markdown_file_count')}"
+        )
 
 
 def frontmatter_value(text: str, key: str) -> str | None:
@@ -68,150 +76,119 @@ def legacy_paths(text: str) -> list[str]:
     return out
 
 
-def copy_content(dest: Path) -> dict[str, str]:
-    posts_dest = dest / "posts"
-    posts_dest.mkdir(parents=True, exist_ok=True)
-    redirects: dict[str, str] = {}
+def rewrite_post_image_references(text: str, slug: str) -> str:
+    """Rewrite generated absolute post-image URLs to local relative paths."""
+    prefixes = (
+        f"/images/posts/{slug}/",
+        f"images/posts/{slug}/",
+    )
+    for prefix in prefixes:
+        text = text.replace(prefix, "images/")
+    return text
+
+
+def ensure_global_asset_dirs(dest: Path) -> None:
+    # Git does not track empty directories, so use .gitkeep placeholders.
+    for relative in (Path("assets/images"), Path("assets/js"), Path("assets/css")):
+        directory = dest / relative
+        directory.mkdir(parents=True, exist_ok=True)
+        keep = directory / ".gitkeep"
+        if not keep.exists():
+            keep.write_text("", encoding="utf-8")
+
+
+def stage_posts(dest: Path, clean_posts: bool) -> tuple[int, int, dict[str, str]]:
+    posts_root = dest / "posts"
+    if clean_posts and posts_root.exists():
+        shutil.rmtree(posts_root)
+    posts_root.mkdir(parents=True, exist_ok=True)
 
     md_files = sorted(SOURCE_MD.glob("*.md"))
-    if len(md_files) != 61:
-        raise SystemExit(f"Expected 61 Markdown files in {SOURCE_MD}, found {len(md_files)}")
+    if len(md_files) != EXPECTED_POSTS:
+        raise SystemExit(f"Expected {EXPECTED_POSTS} Markdown files in {SOURCE_MD}, found {len(md_files)}")
+
+    redirects: dict[str, str] = {}
+    image_count = 0
 
     for src in md_files:
-        text = src.read_text(encoding="utf-8")
-        slug = frontmatter_value(text, "slug") or src.stem
-        paths = legacy_paths(text)
+        original = src.read_text(encoding="utf-8")
+        slug = frontmatter_value(original, "slug") or src.stem
+        paths = legacy_paths(original)
         if not paths:
             raise SystemExit(f"Missing legacyPaths in {src}")
+
+        post_dir = posts_root / slug
+        post_dir.mkdir(parents=True, exist_ok=True)
+
+        rewritten = rewrite_post_image_references(original, slug)
+        (post_dir / "index.md").write_text(rewritten, encoding="utf-8")
+
+        source_images = SOURCE_ASSETS / slug
+        if source_images.exists():
+            destination_images = post_dir / "images"
+            if destination_images.exists():
+                shutil.rmtree(destination_images)
+            shutil.copytree(source_images, destination_images)
+            image_count += sum(1 for p in destination_images.rglob("*") if p.is_file())
+
         for legacy in paths:
-            redirects[legacy] = f"/post/{slug}"
-        shutil.copy2(src, posts_dest / src.name)
+            existing = redirects.get(legacy)
+            destination = f"/post/{slug}"
+            if existing and existing != destination:
+                raise SystemExit(f"Legacy path collision: {legacy} -> {existing} and {destination}")
+            redirects[legacy] = destination
 
-    if SOURCE_ASSETS.exists():
-        assets_dest = dest / "assets" / "posts" / "images"
-        assets_dest.mkdir(parents=True, exist_ok=True)
-        shutil.copytree(SOURCE_ASSETS, assets_dest, dirs_exist_ok=True)
-
-    return redirects
+    return len(md_files), image_count, redirects
 
 
-def stage_asset_copy(dest: Path) -> None:
-    scripts_dir = dest / "scripts"
-    scripts_dir.mkdir(parents=True, exist_ok=True)
-    copy_script = scripts_dir / "copy-post-assets.js"
-    copy_script.write_text(
-        "const fs = require('fs');\n"
-        "const path = require('path');\n\n"
-        "const source = path.join(process.cwd(), 'assets', 'posts', 'images');\n"
-        "const destination = path.join(process.cwd(), 'public', 'images', 'posts');\n\n"
-        "if (!fs.existsSync(source)) {\n"
-        "  console.log(`No post image assets found at ${source}`);\n"
-        "  process.exit(0);\n"
-        "}\n\n"
-        "fs.mkdirSync(destination, { recursive: true });\n"
-        "fs.cpSync(source, destination, { recursive: true, force: true });\n"
-        "console.log(`Copied post image assets to ${destination}`);\n",
+def audit_destination(dest: Path, redirects: dict[str, str]) -> None:
+    post_files = sorted((dest / "posts").glob("*/index.md"))
+    if len(post_files) != EXPECTED_POSTS:
+        raise SystemExit(f"Destination audit expected {EXPECTED_POSTS} posts, found {len(post_files)}")
+
+    bad_refs: list[str] = []
+    missing_images: list[str] = []
+    for index_md in post_files:
+        text = index_md.read_text(encoding="utf-8")
+        if "/images/posts/" in text:
+            bad_refs.append(str(index_md))
+
+        for match in re.finditer(r'(?:!\[[^\]]*\]\(|(?:src|href)=["\'])(images/[^)"\'\s]+)', text, re.I):
+            relative = match.group(1)
+            target = index_md.parent / relative
+            if not target.exists():
+                missing_images.append(f"{index_md}: {relative}")
+
+    if bad_refs:
+        raise SystemExit("Found unre-written /images/posts references:\n" + "\n".join(bad_refs))
+    if missing_images:
+        raise SystemExit("Found missing local post images:\n" + "\n".join(missing_images[:20]))
+
+    (dest / "legacy-redirects.json").write_text(
+        json.dumps(dict(sorted(redirects.items())), indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
-
-    package_path = dest / "package.json"
-    package = json.loads(package_path.read_text(encoding="utf-8"))
-    scripts = package.setdefault("scripts", {})
-    scripts["copy:post-assets"] = "node scripts/copy-post-assets.js"
-    scripts["dev"] = "yarn copy:post-assets && next dev"
-    scripts["build"] = "yarn copy:post-assets && next build"
-    package_path.write_text(json.dumps(package, indent=2) + "\n", encoding="utf-8")
-
-
-def stage_routes(dest: Path, redirects: dict[str, str]) -> None:
-    old_route = dest / "app" / "blog" / "[slug]"
-    new_route = dest / "app" / "post" / "[slug]"
-    if not old_route.exists():
-        raise SystemExit(f"Expected existing article route: {old_route}")
-
-    if new_route.exists():
-        shutil.rmtree(new_route)
-    shutil.copytree(old_route, new_route)
-
-    new_page = new_route / "page.tsx"
-    text = new_page.read_text(encoding="utf-8")
-    text = text.replace("/blog/${post?.slug}", "/post/${post?.slug}")
-    new_page.write_text(text, encoding="utf-8")
-
-    # Keep /blog as the listing page, but redirect the old detail URL.
-    old_page = old_route / "page.tsx"
-    old_page.write_text(
-        "import { redirect } from 'next/navigation';\n\n"
-        "export default async function LegacyBlogPost({ params }: { params: Promise<{ slug: string }> }) {\n"
-        "  const { slug } = await params;\n"
-        "  redirect(`/post/${slug}`);\n"
-        "}\n",
-        encoding="utf-8",
-    )
-
-    # Update generated article links but leave the /blog listing route alone.
-    candidates = list((dest / "components").rglob("*.tsx")) + list((dest / "app").rglob("*.tsx"))
-    candidates += list((dest / "scripts").rglob("*.js")) if (dest / "scripts").exists() else []
-    for path in candidates:
-        data = path.read_text(encoding="utf-8")
-        updated = data.replace("/blog/${", "/post/${")
-        if updated != data:
-            path.write_text(updated, encoding="utf-8")
-
-    # Expose redirect metadata to the app as a static artifact.
-    redirect_file = dest / "legacy-redirects.json"
-    redirect_file.write_text(json.dumps(dict(sorted(redirects.items())), indent=2) + "\n", encoding="utf-8")
-
-    middleware = dest / "middleware.ts"
-    middleware.write_text(
-        "import { NextRequest, NextResponse } from 'next/server';\n"
-        "import legacyRedirects from './legacy-redirects.json';\n\n"
-        "const redirects = legacyRedirects as Record<string, string>;\n\n"
-        "export function middleware(request: NextRequest) {\n"
-        "  const destination = redirects[request.nextUrl.pathname];\n"
-        "  if (!destination) return NextResponse.next();\n"
-        "  return NextResponse.redirect(new URL(destination, request.url), 308);\n"
-        "}\n\n"
-        "export const config = { matcher: ['/post/:path*'] };\n",
-        encoding="utf-8",
-    )
-
-    # Point the blog reader at <repo>/posts and expose legacyPaths in metadata.
-    blog_lib = dest / "lib" / "blog.ts"
-    if blog_lib.exists():
-        data = blog_lib.read_text(encoding="utf-8")
-        data = data.replace(
-            "const postsDirectory = path.join(process.cwd(), 'content', 'posts');",
-            "const postsDirectory = path.join(process.cwd(), 'posts');",
-        )
-        if "legacyPaths?: string[];" not in data:
-            interface_marker = "  readingTime: string;\n"
-            data = data.replace(interface_marker, interface_marker + "  legacyPaths?: string[];\n")
-            data = data.replace(
-                "      readingTime: stats?.text ?? '1 min read',\n",
-                "      readingTime: stats?.text ?? '1 min read',\n      legacyPaths: data?.legacyPaths ?? [],\n",
-            )
-        blog_lib.write_text(data, encoding="utf-8")
-
-    stage_asset_copy(dest)
 
 
 def main() -> int:
     args = parse_args()
     dest = args.destination.resolve()
     validate_source()
-    if not (dest / "package.json").exists() or not (dest / ".git").exists():
-        raise SystemExit(f"Destination does not look like a coding-blog Git checkout: {dest}")
 
-    redirects = copy_content(dest)
-    stage_routes(dest, redirects)
+    if not (dest / ".git").exists():
+        raise SystemExit(f"Destination is not a Git checkout: {dest}")
 
-    print(f"Staged 61 historical Markdown posts into {dest / 'posts'}")
-    print(f"Generated {len(redirects)} legacy redirects in {dest / 'legacy-redirects.json'}")
-    print(f"Copied source image assets into {dest / 'assets' / 'posts' / 'images'}")
-    print("Build/dev copies image assets to public/images/posts for /images/posts/... URLs")
-    print("Canonical article route: /post/<slug>")
-    print("Legacy /blog/<slug> detail route now redirects to /post/<slug>")
+    ensure_global_asset_dirs(dest)
+    post_count, image_count, redirects = stage_posts(dest, args.clean_posts)
+    audit_destination(dest, redirects)
+
+    print(f"Staged posts:            {post_count}")
+    print(f"Copied post images:      {image_count}")
+    print(f"Legacy redirects:        {len(redirects)}")
+    print(f"Posts root:              {dest / 'posts'}")
+    print(f"Global assets root:      {dest / 'assets'}")
+    print(f"Redirect manifest:       {dest / 'legacy-redirects.json'}")
+    print("Post layout:              posts/<slug>/index.md + images/")
     return 0
 
 
