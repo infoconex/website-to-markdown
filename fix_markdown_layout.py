@@ -2,14 +2,16 @@
 """Fix known layout artifacts in migrated Markdown and staged static-site CSS.
 
 BlogEngine/markdownify commonly emits content beneath a top-level numbered list
-item with three leading spaces. Python-Markdown uses four-space nesting levels,
-so migrated list content can escape its parent item or break after an image.
+item with three leading spaces. Python-Markdown is sensitive to the content
+column of nested list items, so migrated content can escape its parent list or
+become an indented code block.
 
 This pass normalizes migrated list structure explicitly:
 
 * continuation content under a top-level numbered item -> 4 spaces
 * nested unordered-list items -> 4 spaces
-* continuation content (including images) under a nested item -> 8 spaces
+* continuation content (including images) under a nested item -> 6 spaces
+  (the content column of ``    - item``)
 * sibling nested bullets are separated after block content such as screenshots
 
 That keeps paragraphs, commands, nested bullets, and screenshots attached to the
@@ -67,6 +69,8 @@ def normalize_indentation(lines: list[str]) -> tuple[list[str], int]:
             indent = leading_spaces(line)
             unordered = UNORDERED_RE.match(line)
 
+            # All sibling bullets beneath a top-level numbered item live at the
+            # same four-space nesting level.
             if unordered and indent >= 3:
                 new_line = with_indent(line, 4)
                 if new_line != line:
@@ -77,14 +81,11 @@ def normalize_indentation(lines: list[str]) -> tuple[list[str], int]:
                 continue
 
             if indent >= 3:
-                target = 8 if in_nested_item else 4
-                if in_nested_item:
-                    extra = max(0, indent - 5)
-                    target += extra
-                else:
-                    extra = max(0, indent - 3)
-                    target += extra
-
+                # ``    - item`` starts its content at column 6. Using 8 spaces
+                # here makes Python-Markdown interpret linked-image Markdown as
+                # an indented code block. Normalize deterministically so reruns
+                # also repair files produced by older versions of this script.
+                target = 6 if in_nested_item else 4
                 new_line = with_indent(line, target)
                 if new_line != line:
                     out[i] = new_line
@@ -96,11 +97,7 @@ def normalize_indentation(lines: list[str]) -> tuple[list[str], int]:
 
 
 def insert_nested_list_boundaries(lines: list[str]) -> tuple[list[str], int]:
-    """Insert a blank before a sibling nested bullet after block continuation.
-
-    Python-Markdown can otherwise terminate a nested list when an 8-space image
-    block is immediately followed by the next 4-space sibling bullet.
-    """
+    """Insert a blank before a sibling nested bullet after block continuation."""
     out: list[str] = []
     inserted = 0
 
@@ -113,7 +110,7 @@ def insert_nested_list_boundaries(lines: list[str]) -> tuple[list[str], int]:
             if j >= 0:
                 previous = out[j]
                 previous_indent = leading_spaces(previous)
-                previous_is_block = previous_indent >= 8 or IMAGE_RE.match(previous.lstrip(" "))
+                previous_is_block = previous_indent >= 6 or IMAGE_RE.match(previous.lstrip(" "))
                 if previous_is_block and (not out or out[-1].strip()):
                     out.append("")
                     inserted += 1
