@@ -43,11 +43,20 @@ def frontmatter_value(text: str, key: str) -> str | None:
 
 
 def legacy_paths(text: str) -> list[str]:
-    match = re.search(r"^legacyPaths:\s*\n(?P<body>(?:\s+-\s+.*\n?)+)", text, re.M)
-    if not match:
+    inline = re.search(r"^legacyPaths:\s*(\[[^\n]*\])\s*$", text, re.M)
+    if inline:
+        try:
+            value = json.loads(inline.group(1))
+            if isinstance(value, list):
+                return [str(item) for item in value if item]
+        except json.JSONDecodeError:
+            pass
+
+    block = re.search(r"^legacyPaths:\s*\n(?P<body>(?:\s+-\s+.*\n?)+)", text, re.M)
+    if not block:
         return []
     out: list[str] = []
-    for line in match.group("body").splitlines():
+    for line in block.group("body").splitlines():
         m = re.match(r'\s*-\s*["\']?(.*?)["\']?\s*$', line)
         if m and m.group(1):
             out.append(m.group(1))
@@ -66,7 +75,10 @@ def copy_content(dest: Path) -> dict[str, str]:
     for src in md_files:
         text = src.read_text(encoding="utf-8")
         slug = frontmatter_value(text, "slug") or src.stem
-        for legacy in legacy_paths(text):
+        paths = legacy_paths(text)
+        if not paths:
+            raise SystemExit(f"Missing legacyPaths in {src}")
+        for legacy in paths:
             redirects[legacy] = f"/post/{slug}"
         shutil.copy2(src, posts_dest / src.name)
 
@@ -136,9 +148,12 @@ def stage_routes(dest: Path, redirects: dict[str, str]) -> None:
     if blog_lib.exists():
         data = blog_lib.read_text(encoding="utf-8")
         if "legacyPaths?: string[];" not in data:
-            data = data.replace("  series?: string;\n", "  legacyPaths?: string[];\n  series?: string;\n", 1)
-            data = data.replace("  series?: string;\n", "  legacyPaths?: string[];\n  series?: string;\n", 1)
-            data = data.replace("      readingTime: stats?.text ?? '1 min read',\n", "      readingTime: stats?.text ?? '1 min read',\n      legacyPaths: data?.legacyPaths ?? [],\n")
+            interface_marker = "  readingTime: string;\n"
+            data = data.replace(interface_marker, interface_marker + "  legacyPaths?: string[];\n")
+            data = data.replace(
+                "      readingTime: stats?.text ?? '1 min read',\n",
+                "      readingTime: stats?.text ?? '1 min read',\n      legacyPaths: data?.legacyPaths ?? [],\n",
+            )
             blog_lib.write_text(data, encoding="utf-8")
 
 
