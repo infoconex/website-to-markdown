@@ -21,7 +21,6 @@ when promoting the migration.
 from __future__ import annotations
 
 import argparse
-import hashlib
 import html as html_lib
 import json
 import mimetypes
@@ -37,8 +36,7 @@ from typing import Any
 from urllib.parse import parse_qs, unquote, urljoin, urlparse
 
 import requests
-import yaml
-from bs4 import BeautifulSoup, NavigableString, Tag
+from bs4 import BeautifulSoup, Tag
 from markdownify import MarkdownConverter
 
 
@@ -47,6 +45,7 @@ DEFAULT_MD_DIR = Path("generated-markdown")
 DEFAULT_ASSET_DIR = Path("generated-assets/images/posts")
 DEFAULT_REPORT = Path("generated-manifest.json")
 USER_AGENT = "website-to-markdown/1.0 (+https://github.com/infoconex/website-to-markdown)"
+LOCAL_IMAGE_HOSTS = {"coding.infoconex.com", "www.coding.infoconex.com"}
 
 
 @dataclass
@@ -57,6 +56,7 @@ class ImageResult:
     local_file: str | None
     status: int | None
     error: str | None
+    kind: str = "image"
 
 
 def slugify(value: str) -> str:
@@ -71,7 +71,9 @@ def slugify(value: str) -> str:
 
 
 def yaml_quote(value: str) -> str:
-    return yaml.safe_dump(value, allow_unicode=True, default_flow_style=True).strip()
+    # JSON double-quoted strings are valid YAML scalars and avoid PyYAML's
+    # document terminator (...) and unwanted multi-line wrapping.
+    return json.dumps(value or "", ensure_ascii=False)
 
 
 def extract_iso_date(url: str, display_date: str | None) -> str:
@@ -227,20 +229,22 @@ def download_images(
     results: list[ImageResult] = []
     post_asset_dir = asset_root / slug
     seen_names: set[str] = set()
+    downloaded_by_url: dict[str, str] = {}
+    request_index = 0
 
-    for index, img in enumerate(body.find_all("img"), start=1):
-        source = (img.get("src") or "").strip()
-        if not source or source.startswith("data:"):
-            continue
-
+    def download_asset(source: str, kind: str) -> tuple[str | None, ImageResult]:
+        nonlocal request_index
+        request_index += 1
         resolved = urljoin(post_url, source)
         parsed = urlparse(resolved)
         host = (parsed.hostname or "").lower()
 
-        if host and host not in {"coding.infoconex.com", "www.coding.infoconex.com"} and not include_external:
-            results.append(ImageResult(source, resolved, resolved, None, None, "external image left unchanged"))
-            img["src"] = resolved
-            continue
+        if resolved in downloaded_by_url:
+            local_path = downloaded_by_url[resolved]
+            return local_path, ImageResult(source, resolved, local_path, None, 200, None, kind)
+
+        if host and host not in LOCAL_IMAGE_HOSTS and not include_external:
+            return resolved, ImageResult(source, resolved, resolved, None, None, "external image left unchanged", kind)
 
         status = None
         try:
@@ -248,7 +252,7 @@ def download_images(
             status = response.status_code
             response.raise_for_status()
             ctype = response.headers.get("content-type")
-            filename = filename_from_image_url(response.url, ctype, index)
+            filename = filename_from_image_url(response.url, ctype, request_index)
             base = filename
             n = 2
             while filename.lower() in seen_names:
@@ -262,14 +266,42 @@ def download_images(
             dest.write_bytes(response.content)
 
             markdown_path = f"/images/posts/{slug}/{filename}"
-            img["src"] = markdown_path
-            results.append(ImageResult(source, resolved, markdown_path, dest.as_posix(), status, None))
+            downloaded_by_url[resolved] = markdown_path
+            return markdown_path, ImageResult(source, resolved, markdown_path, dest.as_posix(), status, None, kind)
         except Exception as exc:
-            img["src"] = resolved
-            results.append(ImageResult(source, resolved, resolved, None, status, str(exc)))
+            return resolved, ImageResult(source, resolved, resolved, None, status, str(exc), kind)
+        finally:
+            if delay:
+                time.sleep(delay)
 
-        if delay:
-            time.sleep(delay)
+    for img in body.find_all("img"):
+        source = (img.get("src") or "").strip()
+        if not source or source.startswith("data:"):
+            continue
+
+        img_path, result = download_asset(source, "image")
+        results.append(result)
+        if img_path:
+            img["src"] = img_path
+
+        # BlogEngine commonly wraps a thumbnail <img> in a link to the original
+        # full-size image. Migrate that target too so the Markdown does not retain
+        # a hidden dependency on coding.infoconex.com/image.axd.
+        parent = img.parent
+        if isinstance(parent, Tag) and parent.name == "a":
+            href = (parent.get("href") or "").strip()
+            if href:
+                full_url = urljoin(post_url, href)
+                full_host = (urlparse(full_url).hostname or "").lower()
+                looks_like_image = (
+                    "image.axd" in full_url.lower()
+                    or bool(re.search(r"\.(?:png|jpe?g|gif|webp|bmp|svg)(?:$|[?#])", full_url, re.I))
+                )
+                if looks_like_image and (full_host in LOCAL_IMAGE_HOSTS or include_external):
+                    full_path, full_result = download_asset(href, "linked-full-image")
+                    results.append(full_result)
+                    if full_path:
+                        parent["href"] = full_path
 
     return results
 
@@ -433,14 +465,14 @@ def main() -> int:
         images = result.get("images") or []
         image_total += len(images)
         image_failures += sum(1 for img in images if img.get("error") and img.get("local_file") is None)
-        print(f"[{i:02d}/{len(entries):02d}] OK    {result['slug']} ({len(images)} images)")
+        print(f"[{i:02d}/{len(entries):02d}] OK    {result['slug']} ({len(images)} image assets)")
 
     args.report.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
 
     print()
     print(f"Posts converted: {len(report) - failures}/{len(report)}")
     print(f"Post failures:    {failures}")
-    print(f"Images seen:      {image_total}")
+    print(f"Image assets:     {image_total}")
     print(f"Image issues:     {image_failures}")
     print(f"Markdown:         {args.markdown_dir}")
     print(f"Assets:           {args.asset_dir}")
