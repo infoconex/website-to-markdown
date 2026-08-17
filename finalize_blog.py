@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Finalize and audit generated historical blog Markdown.
 
-Rewrites internal BlogEngine /post/... links to the destination /post/<slug>
-routes and writes a reconciliation report. Source URLs that were discovered but
-could not be captured (for example HTTP 404) are reported rather than silently
-ignored.
+Rewrites internal BlogEngine links to the destination /post/<slug> routes and
+writes a reconciliation report. Source URLs that were discovered but could not
+be captured (for example HTTP 404) are reported rather than silently ignored.
 """
 
 from __future__ import annotations
@@ -36,9 +35,32 @@ def slugify(value: str) -> str:
     return re.sub(r"-{2,}", "-", value).strip("-") or "post"
 
 
-def normalize_legacy_path(url_or_path: str) -> str | None:
+def is_legacy_post_link(url_or_path: str) -> bool:
+    """Return True only for old BlogEngine post URLs.
+
+    Absolute links to coding.infoconex.com are legacy. Relative /post/... links
+    are legacy only when they use the old dated /post/YYYY/MM/DD/... shape.
+    This deliberately treats the new /post/<slug> route as valid destination
+    content rather than an unresolved legacy link.
+    """
     value = html_lib.unescape((url_or_path or "").strip())
     if not value:
+        return False
+
+    if value.startswith("//"):
+        value = "http:" + value
+
+    parsed = urlsplit(value)
+    if parsed.scheme or parsed.netloc:
+        return (parsed.hostname or "").lower() in LEGACY_HOSTS and parsed.path.lower().startswith("/post/")
+
+    path = value.split("?", 1)[0].split("#", 1)[0]
+    return bool(re.match(r"^/post/\d{4}/\d{2}/\d{2}/", path, re.I))
+
+
+def normalize_legacy_path(url_or_path: str) -> str | None:
+    value = html_lib.unescape((url_or_path or "").strip())
+    if not value or not is_legacy_post_link(value):
         return None
 
     if value.startswith("//"):
@@ -46,15 +68,9 @@ def normalize_legacy_path(url_or_path: str) -> str | None:
 
     parsed = urlsplit(value)
     if parsed.scheme or parsed.netloc:
-        host = (parsed.hostname or "").lower()
-        if host not in LEGACY_HOSTS:
-            return None
         path = parsed.path
     else:
         path = value.split("?", 1)[0].split("#", 1)[0]
-
-    if not path.lower().startswith("/post/"):
-        return None
 
     path = re.sub(r"/{2,}", "/", path).rstrip("/")
     path = re.sub(r"\.aspx$", "", path, flags=re.I)
@@ -77,8 +93,6 @@ def rewrite_markdown(text: str, route_map: dict[str, str]) -> tuple[str, int, se
     rewritten = 0
     unresolved: set[str] = set()
 
-    # Markdown links/images. Stop URL capture before whitespace so optional link
-    # titles, e.g. (url "title"), remain untouched.
     md_pattern = re.compile(
         r"(?P<prefix>!?\[[^\]]*\]\()(?P<url>(?:https?://(?:www\.)?coding\.infoconex\.com)?/post/[^)\s]+)",
         re.I,
@@ -87,17 +101,17 @@ def rewrite_markdown(text: str, route_map: dict[str, str]) -> tuple[str, int, se
     def md_repl(match: re.Match[str]) -> str:
         nonlocal rewritten
         raw = match.group("url")
+        if not is_legacy_post_link(raw):
+            return match.group(0)
         path = normalize_legacy_path(raw)
         if path and path in route_map:
             rewritten += 1
             return match.group("prefix") + route_map[path]
-        if path:
-            unresolved.add(raw)
+        unresolved.add(raw)
         return match.group(0)
 
     text = md_pattern.sub(md_repl, text)
 
-    # Raw HTML links that survived conversion.
     html_pattern = re.compile(
         r'(?P<prefix>href=["\'])(?P<url>(?:https?://(?:www\.)?coding\.infoconex\.com)?/post/[^"\']+)(?P<suffix>["\'])',
         re.I,
@@ -106,12 +120,13 @@ def rewrite_markdown(text: str, route_map: dict[str, str]) -> tuple[str, int, se
     def html_repl(match: re.Match[str]) -> str:
         nonlocal rewritten
         raw = match.group("url")
+        if not is_legacy_post_link(raw):
+            return match.group(0)
         path = normalize_legacy_path(raw)
         if path and path in route_map:
             rewritten += 1
             return match.group("prefix") + route_map[path] + match.group("suffix")
-        if path:
-            unresolved.add(raw)
+        unresolved.add(raw)
         return match.group(0)
 
     text = html_pattern.sub(html_repl, text)
