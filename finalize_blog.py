@@ -2,9 +2,10 @@
 """Finalize and audit generated historical blog Markdown.
 
 Rewrites internal BlogEngine links to the destination /post/<slug> routes,
-adds legacyPaths frontmatter for redirect handling, and writes a reconciliation
-report. Source URLs that were discovered but could not be captured (for example
-HTTP 404) are reported rather than silently ignored.
+adds legacyPaths frontmatter for confirmed historical URLs, and writes a
+reconciliation report. Source URLs that were discovered but could not be
+captured (for example HTTP 404) are reported but are not treated as valid
+historical aliases.
 """
 
 from __future__ import annotations
@@ -85,15 +86,11 @@ def build_route_map(crawl: list[dict[str, Any]]) -> dict[str, str]:
 
 
 def build_legacy_paths_by_slug(crawl: list[dict[str, Any]]) -> dict[str, list[str]]:
-    """Collect every known historical root-relative URL for each destination slug.
-
-    This intentionally includes discovered-but-unavailable entries. If an old URL
-    now returns 404 but has the same historical title as a captured post, retaining
-    it here lets the destination site redirect that known alias to the recovered
-    article.
-    """
+    """Collect confirmed captured historical URLs for each destination slug."""
     result: dict[str, list[str]] = {}
     for entry in crawl:
+        if entry.get("status") != 200 or not entry.get("html_file"):
+            continue
         title = entry.get("title") or ""
         path = normalize_legacy_path(entry.get("url") or "")
         if not title or not path:
