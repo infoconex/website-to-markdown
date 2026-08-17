@@ -29,14 +29,16 @@ TOP_LEVEL_NUMBERED_RE = re.compile(r"^\d+[.)]\s+")
 UNORDERED_RE = re.compile(r"^(?P<indent> +)[-+*]\s+")
 IMAGE_RE = re.compile(r"^(?:\[)?!\[[^\]]*\]\([^\n]+\)(?:\]\([^\n]+\))?\s*$")
 
+CSS_START = "/* BEGIN migrated post layout */"
+CSS_END = "/* END migrated post layout */"
 CSS_RULES = r'''
-
-/* Migrated post content: keep loose Markdown lists compact and images block-level. */
+/* BEGIN migrated post layout */
 .post-body li { margin: .35rem 0; }
 .post-body li > p { margin: .35rem 0; }
 .post-body li img { display: block; margin: .85rem 0; }
+.post-body ol ul > li img { margin-left: .75rem; }
+/* END migrated post layout */
 '''
-CSS_MARKER = "Migrated post content: keep loose Markdown lists compact"
 
 
 def leading_spaces(line: str) -> int:
@@ -69,8 +71,6 @@ def normalize_indentation(lines: list[str]) -> tuple[list[str], int]:
             indent = leading_spaces(line)
             unordered = UNORDERED_RE.match(line)
 
-            # All sibling bullets beneath a top-level numbered item live at the
-            # same four-space nesting level.
             if unordered and indent >= 3:
                 new_line = with_indent(line, 4)
                 if new_line != line:
@@ -81,10 +81,6 @@ def normalize_indentation(lines: list[str]) -> tuple[list[str], int]:
                 continue
 
             if indent >= 3:
-                # ``    - item`` starts its content at column 6. Using 8 spaces
-                # here makes Python-Markdown interpret linked-image Markdown as
-                # an indented code block. Normalize deterministically so reruns
-                # also repair files produced by older versions of this script.
                 target = 6 if in_nested_item else 4
                 new_line = with_indent(line, target)
                 if new_line != line:
@@ -132,9 +128,31 @@ def patch_css(destination: Path) -> bool:
     if not css.exists():
         raise SystemExit(f"Stylesheet not found: {css}")
     text = css.read_text(encoding="utf-8")
-    if CSS_MARKER in text:
+
+    # Replace either the current managed block or the older one-shot marker
+    # block so CSS tuning can be applied repeatedly without duplicating rules.
+    managed = re.compile(
+        re.escape(CSS_START) + r".*?" + re.escape(CSS_END),
+        re.S,
+    )
+    if managed.search(text):
+        updated = managed.sub(CSS_RULES.strip(), text)
+    else:
+        old = re.compile(
+            r"\n?/\* Migrated post content: keep loose Markdown lists compact and images block-level\. \*/\n"
+            r"\.post-body li \{ margin: \.35rem 0; \}\n"
+            r"\.post-body li > p \{ margin: \.35rem 0; \}\n"
+            r"\.post-body li img \{ display: block; margin: \.85rem 0; \}\n?",
+            re.S,
+        )
+        if old.search(text):
+            updated = old.sub("\n" + CSS_RULES.strip() + "\n", text)
+        else:
+            updated = text.rstrip() + "\n\n" + CSS_RULES.strip() + "\n"
+
+    if updated == text:
         return False
-    css.write_text(text.rstrip() + CSS_RULES + "\n", encoding="utf-8")
+    css.write_text(updated, encoding="utf-8")
     return True
 
 
