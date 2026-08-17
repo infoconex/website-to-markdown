@@ -170,4 +170,5 @@ The **Open/Closed Principle** helps you build code that is easier to maintain, e
 
 This is the second article in the **SOLID** series. Up next, we’ll explore the **Liskov Substitution Principle**, which teaches us when and how subclassing can go wrong.
 
-Want to read the full series? Browse all SOLID principle articles: [Create better software by applying SOLID principles](/post/2023/02/13/creat-better-software-by-applying-solid-principles)
+Want to read the full series? Browse all SOLID principle articles: [Create better software by applying SOLID principles](/post/create-better-software-by-applying-solid-principles)
+

@@ -12,11 +12,7 @@
       "html_file": null
     }
   ],
-  "internal_links_rewritten": 2,
-  "unresolved_legacy_links": {
-    "open-closed-principle-ocp-building-for-extension-not-modification.md": [
-      "/post/2023/02/13/creat-better-software-by-applying-solid-principles"
-    ]
-  },
-  "check_only": false
+  "internal_links_rewritten": 0,
+  "unresolved_legacy_links": {},
+  "check_only": true
 }
