@@ -6,7 +6,7 @@ tags: ["c#", "solid principles", "open closed principle", "single responsibility
 slug: "create-better-software-by-applying-solid-principles"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2025/06/13/creat-better-software-by-applying-solid-principles"
-legacyPaths: ["/post/2023/02/13/creat-better-software-by-applying-solid-principles", "/post/2025/06/13/creat-better-software-by-applying-solid-principles"]
+legacyPaths: ["/post/2025/06/13/creat-better-software-by-applying-solid-principles"]
 ---
 SOLID is an acronym for five design principles that are considered fundamental to object-oriented programming. These principles, when followed correctly, can help to create more robust, flexible, and maintainable code. The SOLID principles are:
 
