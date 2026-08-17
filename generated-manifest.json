@@ -20,7 +20,17 @@
         "markdown_path": "/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/attachvhd-thumb.jpg",
         "local_file": "generated-assets/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/attachvhd-thumb.jpg",
         "status": 200,
-        "error": null
+        "error": null,
+        "kind": "image"
+      },
+      {
+        "source": "http://coding.infoconex.com/image.axd?picture=attachvhd.jpg",
+        "resolved_url": "http://coding.infoconex.com/image.axd?picture=attachvhd.jpg",
+        "markdown_path": "/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/attachvhd.jpg",
+        "local_file": "generated-assets/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/attachvhd.jpg",
+        "status": 200,
+        "error": null,
+        "kind": "linked-full-image"
       },
       {
         "source": "http://coding.infoconex.com/image.axd?picture=script_thumb.jpg",
@@ -28,7 +38,17 @@
         "markdown_path": "/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/script-thumb.jpg",
         "local_file": "generated-assets/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/script-thumb.jpg",
         "status": 200,
-        "error": null
+        "error": null,
+        "kind": "image"
+      },
+      {
+        "source": "http://coding.infoconex.com/image.axd?picture=script.jpg",
+        "resolved_url": "http://coding.infoconex.com/image.axd?picture=script.jpg",
+        "markdown_path": "/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/script.jpg",
+        "local_file": "generated-assets/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/script.jpg",
+        "status": 200,
+        "error": null,
+        "kind": "linked-full-image"
       },
       {
         "source": "http://coding.infoconex.com/image.axd?picture=1_addtask_thumb_2.jpg",
@@ -36,7 +56,17 @@
         "markdown_path": "/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/1-addtask-thumb-2.jpg",
         "local_file": "generated-assets/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/1-addtask-thumb-2.jpg",
         "status": 200,
-        "error": null
+        "error": null,
+        "kind": "image"
+      },
+      {
+        "source": "http://coding.infoconex.com/image.axd?picture=1_addtask_2.jpg",
+        "resolved_url": "http://coding.infoconex.com/image.axd?picture=1_addtask_2.jpg",
+        "markdown_path": "/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/1-addtask-2.jpg",
+        "local_file": "generated-assets/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/1-addtask-2.jpg",
+        "status": 200,
+        "error": null,
+        "kind": "linked-full-image"
       },
       {
         "source": "http://coding.infoconex.com/image.axd?picture=2_createbasictask_thumb_2.jpg",
@@ -44,7 +74,17 @@
         "markdown_path": "/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/2-createbasictask-thumb-2.jpg",
         "local_file": "generated-assets/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/2-createbasictask-thumb-2.jpg",
         "status": 200,
-        "error": null
+        "error": null,
+        "kind": "image"
+      },
+      {
+        "source": "http://coding.infoconex.com/image.axd?picture=2_createbasictask_2.jpg",
+        "resolved_url": "http://coding.infoconex.com/image.axd?picture=2_createbasictask_2.jpg",
+        "markdown_path": "/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/2-createbasictask-2.jpg",
+        "local_file": "generated-assets/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/2-createbasictask-2.jpg",
+        "status": 200,
+        "error": null,
+        "kind": "linked-full-image"
       },
       {
         "source": "http://coding.infoconex.com/image.axd?picture=3_start_program_thumb_1.jpg",
@@ -52,7 +92,17 @@
         "markdown_path": "/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/3-start-program-thumb-1.jpg",
         "local_file": "generated-assets/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/3-start-program-thumb-1.jpg",
         "status": 200,
-        "error": null
+        "error": null,
+        "kind": "image"
+      },
+      {
+        "source": "http://coding.infoconex.com/image.axd?picture=3_start_program_1.jpg",
+        "resolved_url": "http://coding.infoconex.com/image.axd?picture=3_start_program_1.jpg",
+        "markdown_path": "/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/3-start-program-1.jpg",
+        "local_file": "generated-assets/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/3-start-program-1.jpg",
+        "status": 200,
+        "error": null,
+        "kind": "linked-full-image"
       },
       {
         "source": "http://coding.infoconex.com/image.axd?picture=3_when_computer_starts_thumb_2.jpg",
@@ -60,7 +110,17 @@
         "markdown_path": "/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/3-when-computer-starts-thumb-2.jpg",
         "local_file": "generated-assets/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/3-when-computer-starts-thumb-2.jpg",
         "status": 200,
-        "error": null
+        "error": null,
+        "kind": "image"
+      },
+      {
+        "source": "http://coding.infoconex.com/image.axd?picture=3_when_computer_starts_2.jpg",
+        "resolved_url": "http://coding.infoconex.com/image.axd?picture=3_when_computer_starts_2.jpg",
+        "markdown_path": "/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/3-when-computer-starts-2.jpg",
+        "local_file": "generated-assets/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/3-when-computer-starts-2.jpg",
+        "status": 200,
+        "error": null,
+        "kind": "linked-full-image"
       },
       {
         "source": "http://coding.infoconex.com/image.axd?picture=5_script_thumb_2.jpg",
@@ -68,7 +128,17 @@
         "markdown_path": "/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/5-script-thumb-2.jpg",
         "local_file": "generated-assets/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/5-script-thumb-2.jpg",
         "status": 200,
-        "error": null
+        "error": null,
+        "kind": "image"
+      },
+      {
+        "source": "http://coding.infoconex.com/image.axd?picture=5_script_2.jpg",
+        "resolved_url": "http://coding.infoconex.com/image.axd?picture=5_script_2.jpg",
+        "markdown_path": "/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/5-script-2.jpg",
+        "local_file": "generated-assets/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/5-script-2.jpg",
+        "status": 200,
+        "error": null,
+        "kind": "linked-full-image"
       },
       {
         "source": "http://coding.infoconex.com/image.axd?picture=6_finish_thumb_2.jpg",
@@ -76,7 +146,17 @@
         "markdown_path": "/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/6-finish-thumb-2.jpg",
         "local_file": "generated-assets/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/6-finish-thumb-2.jpg",
         "status": 200,
-        "error": null
+        "error": null,
+        "kind": "image"
+      },
+      {
+        "source": "http://coding.infoconex.com/image.axd?picture=6_finish_2.jpg",
+        "resolved_url": "http://coding.infoconex.com/image.axd?picture=6_finish_2.jpg",
+        "markdown_path": "/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/6-finish-2.jpg",
+        "local_file": "generated-assets/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/6-finish-2.jpg",
+        "status": 200,
+        "error": null,
+        "kind": "linked-full-image"
       },
       {
         "source": "http://coding.infoconex.com/image.axd?picture=auto_play_thumb_1.jpg",
@@ -84,7 +164,17 @@
         "markdown_path": "/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/auto-play-thumb-1.jpg",
         "local_file": "generated-assets/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/auto-play-thumb-1.jpg",
         "status": 200,
-        "error": null
+        "error": null,
+        "kind": "image"
+      },
+      {
+        "source": "http://coding.infoconex.com/image.axd?picture=auto_play_1.jpg",
+        "resolved_url": "http://coding.infoconex.com/image.axd?picture=auto_play_1.jpg",
+        "markdown_path": "/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/auto-play-1.jpg",
+        "local_file": "generated-assets/images/posts/automatically-attaching-vhd-files-in-windows-7-and-windows-2008/auto-play-1.jpg",
+        "status": 200,
+        "error": null,
+        "kind": "linked-full-image"
       }
     ]
   },
