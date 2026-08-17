@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-"""Stage finalized historical blog content into a clean static-site repository.
+"""Stage finalized historical blog content into a GitHub Pages source repository.
 
-Destination layout:
+Destination layout mirrors the confirmed historical BlogEngine URL hierarchy:
 
-  posts/<slug>/index.md
-  posts/<slug>/images/*
+  posts/YYYY/MM/DD/<historical-slug>/index.md
+  posts/YYYY/MM/DD/<historical-slug>/images/*
   assets/images/
   assets/js/
   assets/css/
 
-Post-specific images are moved beside each post and Markdown references are
+Post-specific images remain beside each post and Markdown references are
 rewritten to relative images/... paths. Global assets remain under assets/.
-No framework-specific files, middleware, or public/ copies are created.
+No redirect manifest is generated; confirmed historical paths are preserved.
 """
 
 from __future__ import annotations
@@ -21,6 +21,7 @@ import json
 import re
 import shutil
 from pathlib import Path
+from urllib.parse import urlsplit
 
 SOURCE_MD = Path("generated-markdown")
 SOURCE_ASSETS = Path("generated-assets/images/posts")
@@ -37,7 +38,7 @@ def parse_args() -> argparse.Namespace:
 
 def validate_source() -> None:
     if not REPORT.exists():
-        raise SystemExit("finalization-report.json not found; run finalize_blog.py --check-only first")
+        raise SystemExit("finalization-report.json not found; run finalize_blog.py first")
     report = json.loads(REPORT.read_text(encoding="utf-8"))
     if report.get("duplicate_slugs"):
         raise SystemExit("Migration report still has duplicate slugs")
@@ -76,8 +77,24 @@ def legacy_paths(text: str) -> list[str]:
     return out
 
 
+def historical_post_path(text: str) -> str:
+    """Return the confirmed historical /post/YYYY/MM/DD/slug path for a post."""
+    original_url = frontmatter_value(text, "originalUrl")
+    if original_url:
+        parsed = urlsplit(original_url)
+        path = parsed.path
+        path = re.sub(r"\.aspx$", "", path, flags=re.I).rstrip("/")
+        if re.match(r"^/post/\d{4}/\d{2}/\d{2}/[^/]+$", path, re.I):
+            return path
+
+    paths = legacy_paths(text)
+    if len(paths) == 1:
+        return paths[0].rstrip("/")
+
+    raise SystemExit("Could not determine one confirmed historical post path from originalUrl/legacyPaths")
+
+
 def rewrite_post_image_references(text: str, slug: str) -> str:
-    """Rewrite generated absolute post-image URLs to local relative paths."""
     prefixes = (
         f"/images/posts/{slug}/",
         f"images/posts/{slug}/",
@@ -88,7 +105,6 @@ def rewrite_post_image_references(text: str, slug: str) -> str:
 
 
 def ensure_global_asset_dirs(dest: Path) -> None:
-    # Git does not track empty directories, so use .gitkeep placeholders.
     for relative in (Path("assets/images"), Path("assets/js"), Path("assets/css")):
         directory = dest / relative
         directory.mkdir(parents=True, exist_ok=True)
@@ -97,7 +113,15 @@ def ensure_global_asset_dirs(dest: Path) -> None:
             keep.write_text("", encoding="utf-8")
 
 
-def stage_posts(dest: Path, clean_posts: bool) -> tuple[int, int, dict[str, str]]:
+def source_dir_for_historical_path(posts_root: Path, historical_path: str) -> Path:
+    parts = [part for part in historical_path.strip("/").split("/") if part]
+    if len(parts) != 5 or parts[0].lower() != "post":
+        raise SystemExit(f"Unexpected historical post path: {historical_path}")
+    _, year, month, day, historical_slug = parts
+    return posts_root / year / month / day / historical_slug
+
+
+def stage_posts(dest: Path, clean_posts: bool) -> tuple[int, int]:
     posts_root = dest / "posts"
     if clean_posts and posts_root.exists():
         shutil.rmtree(posts_root)
@@ -107,17 +131,19 @@ def stage_posts(dest: Path, clean_posts: bool) -> tuple[int, int, dict[str, str]
     if len(md_files) != EXPECTED_POSTS:
         raise SystemExit(f"Expected {EXPECTED_POSTS} Markdown files in {SOURCE_MD}, found {len(md_files)}")
 
-    redirects: dict[str, str] = {}
     image_count = 0
+    seen_paths: set[str] = set()
 
     for src in md_files:
         original = src.read_text(encoding="utf-8")
         slug = frontmatter_value(original, "slug") or src.stem
-        paths = legacy_paths(original)
-        if not paths:
-            raise SystemExit(f"Missing legacyPaths in {src}")
+        historical_path = historical_post_path(original)
+        key = historical_path.lower()
+        if key in seen_paths:
+            raise SystemExit(f"Historical path collision: {historical_path}")
+        seen_paths.add(key)
 
-        post_dir = posts_root / slug
+        post_dir = source_dir_for_historical_path(posts_root, historical_path)
         post_dir.mkdir(parents=True, exist_ok=True)
 
         rewritten = rewrite_post_image_references(original, slug)
@@ -131,18 +157,11 @@ def stage_posts(dest: Path, clean_posts: bool) -> tuple[int, int, dict[str, str]
             shutil.copytree(source_images, destination_images)
             image_count += sum(1 for p in destination_images.rglob("*") if p.is_file())
 
-        for legacy in paths:
-            existing = redirects.get(legacy)
-            destination = f"/post/{slug}"
-            if existing and existing != destination:
-                raise SystemExit(f"Legacy path collision: {legacy} -> {existing} and {destination}")
-            redirects[legacy] = destination
-
-    return len(md_files), image_count, redirects
+    return len(md_files), image_count
 
 
-def audit_destination(dest: Path, redirects: dict[str, str]) -> None:
-    post_files = sorted((dest / "posts").glob("*/index.md"))
+def audit_destination(dest: Path) -> None:
+    post_files = sorted((dest / "posts").glob("*/*/*/*/index.md"))
     if len(post_files) != EXPECTED_POSTS:
         raise SystemExit(f"Destination audit expected {EXPECTED_POSTS} posts, found {len(post_files)}")
 
@@ -164,10 +183,9 @@ def audit_destination(dest: Path, redirects: dict[str, str]) -> None:
     if missing_images:
         raise SystemExit("Found missing local post images:\n" + "\n".join(missing_images[:20]))
 
-    (dest / "legacy-redirects.json").write_text(
-        json.dumps(dict(sorted(redirects.items())), indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8",
-    )
+    redirect_manifest = dest / "legacy-redirects.json"
+    if redirect_manifest.exists():
+        redirect_manifest.unlink()
 
 
 def main() -> int:
@@ -179,16 +197,15 @@ def main() -> int:
         raise SystemExit(f"Destination is not a Git checkout: {dest}")
 
     ensure_global_asset_dirs(dest)
-    post_count, image_count, redirects = stage_posts(dest, args.clean_posts)
-    audit_destination(dest, redirects)
+    post_count, image_count = stage_posts(dest, args.clean_posts)
+    audit_destination(dest)
 
     print(f"Staged posts:            {post_count}")
     print(f"Copied post images:      {image_count}")
-    print(f"Legacy redirects:        {len(redirects)}")
     print(f"Posts root:              {dest / 'posts'}")
     print(f"Global assets root:      {dest / 'assets'}")
-    print(f"Redirect manifest:       {dest / 'legacy-redirects.json'}")
-    print("Post layout:              posts/<slug>/index.md + images/")
+    print("Redirect manifest:       not generated")
+    print("Post layout:              posts/YYYY/MM/DD/<historical-slug>/index.md + images/")
     return 0
 
 
