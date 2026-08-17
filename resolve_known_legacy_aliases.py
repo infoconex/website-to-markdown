@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Rewrite known historical post aliases to canonical /post/<slug> links.
+"""Rewrite confirmed historical post URLs to canonical /post/<slug> links.
 
-Unlike finalize_blog.py's primary route map, this includes discovered historical
-URLs that were unavailable at crawl time when their title resolves to a captured
-post slug. This covers known aliases such as the unavailable 2023 SOLID URL that
-belongs to the recovered 2025 article.
+Only crawl entries that were successfully captured are treated as historical
+routes. Discovered URLs that returned 404 or otherwise could not be captured are
+reported elsewhere, but are not assumed to have been valid published aliases.
 """
 
 from __future__ import annotations
@@ -61,6 +60,8 @@ def main() -> int:
 
     route_map: dict[str, str] = {}
     for entry in crawl:
+        if entry.get("status") != 200 or not entry.get("html_file"):
+            continue
         slug = slugify(str(entry.get("title") or ""))
         path = normalize_legacy_path(str(entry.get("url") or ""))
         if slug in captured_slugs and path:
@@ -104,7 +105,7 @@ def main() -> int:
             path.write_text(updated, encoding="utf-8")
             files_changed += 1
 
-    print(f"Known alias routes:       {len(route_map)}")
+    print(f"Confirmed legacy routes:  {len(route_map)}")
     print(f"Files changed:            {files_changed}")
     print(f"Links rewritten:          {total}")
     return 0
