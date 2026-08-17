@@ -29,6 +29,10 @@ POSTS = ROOT / "posts"
 REQUIRED_FIELDS = ("title", "date", "description", "tags", "slug", "author", "originalUrl", "legacyPaths", "permalink")
 DATED_POST_RE = re.compile(r"^/post/\d{4}/\d{2}/\d{2}/[^/]+/?$", re.I)
 LINK_RE = re.compile(r"!?\[[^\]]*\]\((?P<url>[^)\s]+)")
+LINKED_IMAGE_RE = re.compile(
+    r"\[!\[[^\]]*\]\([^)]+\)\]\((?P<url>[^)\s]+)",
+    re.I,
+)
 HTML_URL_RE = re.compile(r"(?:src|href)=[\"'](?P<url>[^\"']+)[\"']", re.I)
 LEGACY_HOSTS = {"coding.infoconex.com", "www.coding.infoconex.com"}
 
@@ -48,6 +52,9 @@ def read_post(path: Path) -> tuple[dict, str]:
 
 def urls(body: str) -> list[str]:
     found = [m.group("url") for m in LINK_RE.finditer(body)]
+    # LINK_RE sees the embedded thumbnail in [![...](thumb)](full), but not
+    # the outer full-size image target. Capture that target explicitly.
+    found.extend(m.group("url") for m in LINKED_IMAGE_RE.finditer(body))
     found.extend(m.group("url") for m in HTML_URL_RE.finditer(body))
     return found
 
