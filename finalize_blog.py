@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Finalize and audit generated historical blog Markdown.
 
-Rewrites internal BlogEngine links to the destination /post/<slug> routes and
-writes a reconciliation report. Source URLs that were discovered but could not
-be captured (for example HTTP 404) are reported rather than silently ignored.
+Rewrites internal BlogEngine links to the destination /post/<slug> routes,
+adds legacyPaths frontmatter for redirect handling, and writes a reconciliation
+report. Source URLs that were discovered but could not be captured (for example
+HTTP 404) are reported rather than silently ignored.
 """
 
 from __future__ import annotations
@@ -36,13 +37,7 @@ def slugify(value: str) -> str:
 
 
 def is_legacy_post_link(url_or_path: str) -> bool:
-    """Return True only for old BlogEngine post URLs.
-
-    Absolute links to coding.infoconex.com are legacy. Relative /post/... links
-    are legacy only when they use the old dated /post/YYYY/MM/DD/... shape.
-    This deliberately treats the new /post/<slug> route as valid destination
-    content rather than an unresolved legacy link.
-    """
+    """Return True only for old BlogEngine post URLs."""
     value = html_lib.unescape((url_or_path or "").strip())
     if not value:
         return False
@@ -74,7 +69,7 @@ def normalize_legacy_path(url_or_path: str) -> str | None:
 
     path = re.sub(r"/{2,}", "/", path).rstrip("/")
     path = re.sub(r"\.aspx$", "", path, flags=re.I)
-    return path.lower()
+    return path
 
 
 def build_route_map(crawl: list[dict[str, Any]]) -> dict[str, str]:
@@ -85,8 +80,55 @@ def build_route_map(crawl: list[dict[str, Any]]) -> dict[str, str]:
         path = normalize_legacy_path(entry.get("url") or "")
         if not path:
             continue
-        route_map[path] = f"/post/{slugify(entry.get('title') or '')}"
+        route_map[path.lower()] = f"/post/{slugify(entry.get('title') or '')}"
     return route_map
+
+
+def build_legacy_paths_by_slug(crawl: list[dict[str, Any]]) -> dict[str, list[str]]:
+    """Collect every known historical root-relative URL for each destination slug.
+
+    This intentionally includes discovered-but-unavailable entries. If an old URL
+    now returns 404 but has the same historical title as a captured post, retaining
+    it here lets the destination site redirect that known alias to the recovered
+    article.
+    """
+    result: dict[str, list[str]] = {}
+    for entry in crawl:
+        title = entry.get("title") or ""
+        path = normalize_legacy_path(entry.get("url") or "")
+        if not title or not path:
+            continue
+        slug = slugify(title)
+        paths = result.setdefault(slug, [])
+        if path not in paths:
+            paths.append(path)
+    return result
+
+
+def set_legacy_paths_frontmatter(text: str, paths: list[str]) -> tuple[str, bool]:
+    if not text.startswith("---\n"):
+        return text, False
+
+    end = text.find("\n---\n", 4)
+    if end < 0:
+        return text, False
+
+    frontmatter = text[4:end]
+    body = text[end + 5 :]
+    value = "legacyPaths: [" + ", ".join(json.dumps(p, ensure_ascii=False) for p in paths) + "]"
+
+    existing = re.compile(r"^legacyPaths:\s*.*$", re.M)
+    if existing.search(frontmatter):
+        updated_frontmatter = existing.sub(value, frontmatter)
+    else:
+        original_url = re.compile(r"^(originalUrl:\s*.*)$", re.M)
+        if original_url.search(frontmatter):
+            updated_frontmatter = original_url.sub(r"\1\n" + value, frontmatter, count=1)
+        else:
+            updated_frontmatter = frontmatter.rstrip() + "\n" + value
+
+    updated = "---\n" + updated_frontmatter + "\n---\n" + body
+    return updated, updated != text
 
 
 def rewrite_markdown(text: str, route_map: dict[str, str]) -> tuple[str, int, set[str]]:
@@ -104,9 +146,9 @@ def rewrite_markdown(text: str, route_map: dict[str, str]) -> tuple[str, int, se
         if not is_legacy_post_link(raw):
             return match.group(0)
         path = normalize_legacy_path(raw)
-        if path and path in route_map:
+        if path and path.lower() in route_map:
             rewritten += 1
-            return match.group("prefix") + route_map[path]
+            return match.group("prefix") + route_map[path.lower()]
         unresolved.add(raw)
         return match.group(0)
 
@@ -123,9 +165,9 @@ def rewrite_markdown(text: str, route_map: dict[str, str]) -> tuple[str, int, se
         if not is_legacy_post_link(raw):
             return match.group(0)
         path = normalize_legacy_path(raw)
-        if path and path in route_map:
+        if path and path.lower() in route_map:
             rewritten += 1
-            return match.group("prefix") + route_map[path] + match.group("suffix")
+            return match.group("prefix") + route_map[path.lower()] + match.group("suffix")
         unresolved.add(raw)
         return match.group(0)
 
@@ -134,7 +176,7 @@ def rewrite_markdown(text: str, route_map: dict[str, str]) -> tuple[str, int, se
 
 
 def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Rewrite internal legacy blog links and audit generated output.")
+    p = argparse.ArgumentParser(description="Finalize historical BlogEngine Markdown and audit migration output.")
     p.add_argument("--crawl-manifest", type=Path, default=DEFAULT_CRAWL_MANIFEST)
     p.add_argument("--generated-manifest", type=Path, default=DEFAULT_GENERATED_MANIFEST)
     p.add_argument("--markdown-dir", type=Path, default=DEFAULT_MARKDOWN_DIR)
@@ -156,6 +198,7 @@ def main() -> int:
     crawl = json.loads(args.crawl_manifest.read_text(encoding="utf-8"))
     generated = json.loads(args.generated_manifest.read_text(encoding="utf-8"))
     route_map = build_route_map(crawl)
+    legacy_paths_by_slug = build_legacy_paths_by_slug(crawl)
 
     slugs = [e.get("slug") for e in generated if e.get("conversion_status") == "ok" and e.get("slug")]
     counts = Counter(slugs)
@@ -174,6 +217,7 @@ def main() -> int:
 
     markdown_files = sorted(args.markdown_dir.glob("*.md"))
     rewritten_total = 0
+    legacy_paths_files_updated = 0
     unresolved_by_file: dict[str, list[str]] = {}
 
     for path in markdown_files:
@@ -182,8 +226,16 @@ def main() -> int:
         rewritten_total += rewritten
         if unresolved:
             unresolved_by_file[path.name] = sorted(unresolved)
+
+        legacy_paths = legacy_paths_by_slug.get(path.stem, [])
+        updated, frontmatter_changed = set_legacy_paths_frontmatter(updated, legacy_paths)
+        if frontmatter_changed:
+            legacy_paths_files_updated += 1
+
         if updated != original and not args.check_only:
             path.write_text(updated, encoding="utf-8")
+
+    missing_legacy_paths = sorted(path.name for path in markdown_files if path.stem not in legacy_paths_by_slug)
 
     report = {
         "crawl_inventory_count": len(crawl),
@@ -193,6 +245,8 @@ def main() -> int:
         "duplicate_slugs": duplicate_slugs,
         "unavailable_source_entries": unavailable,
         "internal_links_rewritten": rewritten_total,
+        "legacy_paths_files_updated": legacy_paths_files_updated,
+        "missing_legacy_paths": missing_legacy_paths,
         "unresolved_legacy_links": unresolved_by_file,
         "check_only": bool(args.check_only),
     }
@@ -202,12 +256,14 @@ def main() -> int:
     print(f"Captured sources:        {report['captured_source_count']}")
     print(f"Generated Markdown:      {len(markdown_files)}")
     print(f"Internal links rewritten:{rewritten_total:>5}")
+    print(f"legacyPaths files updated:{legacy_paths_files_updated:>4}")
+    print(f"Missing legacyPaths:     {len(missing_legacy_paths)}")
     print(f"Duplicate slugs:         {len(duplicate_slugs)}")
     print(f"Unavailable sources:     {len(unavailable)}")
     print(f"Files with unresolved legacy links: {len(unresolved_by_file)}")
     print(f"Report:                  {args.report}")
 
-    if duplicate_slugs or unresolved_by_file:
+    if duplicate_slugs or unresolved_by_file or missing_legacy_paths:
         return 1
     return 0
 
