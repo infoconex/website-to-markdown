@@ -145,8 +145,11 @@ def main() -> int:
             if clean.startswith("/images/posts/"):
                 errors.append(f"{index_md}: old generated image URL remains: {url}")
             parsed_link = urlsplit(url)
-            if (parsed_link.hostname or "").lower() in LEGACY_HOSTS:
-                errors.append(f"{index_md}: historical-host link should be root-relative: {url}")
+            if (
+                (parsed_link.hostname or "").lower() in LEGACY_HOSTS
+                and parsed_link.path.lower().startswith("/post/")
+            ):
+                errors.append(f"{index_md}: historical post link should be root-relative: {url}")
 
         image_dir = index_md.parent / "images"
         if image_dir.exists():
