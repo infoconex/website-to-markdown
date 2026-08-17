@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install self-validation into a staged coding-blog static site repository."""
+"""Install source validation into a staged coding-blog repository."""
 
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ from urllib.parse import urlsplit
 import markdown
 import yaml
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent
 POSTS = ROOT / "posts"
 REQUIRED_FIELDS = ("title", "date", "description", "tags", "slug", "author", "originalUrl", "legacyPaths")
 DATED_LEGACY_RE = re.compile(r"^/post/\d{4}/\d{2}/\d{2}/[^/]+/?$", re.I)
@@ -182,42 +182,7 @@ if __name__ == "__main__":
     raise SystemExit(main())
 '''
 
-
-def ensure_build_runs_validation(dest: Path) -> None:
-    build_path = dest / "build.py"
-    if not build_path.exists():
-        return
-    text = build_path.read_text(encoding="utf-8")
-    if "subprocess.run([sys.executable, str(ROOT / \"validate.py\")], check=True)" in text:
-        return
-    text = text.replace("import shutil\n", "import shutil\nimport subprocess\nimport sys\n", 1)
-    marker = "def main() -> int:\n"
-    injection = (
-        "def main() -> int:\n"
-        "    subprocess.run([sys.executable, str(ROOT / \"validate.py\")], check=True)\n"
-    )
-    if marker not in text:
-        raise SystemExit("Could not patch build.py: main() marker not found")
-    text = text.replace(marker, injection, 1)
-    build_path.write_text(text, encoding="utf-8")
-
-
-def ensure_workflow_validation(dest: Path) -> None:
-    workflow = dest / ".github" / "workflows" / "pages.yml"
-    if not workflow.exists():
-        return
-    text = workflow.read_text(encoding="utf-8")
-    if "name: Validate content" in text:
-        return
-    needle = "      - name: Build static site\n        run: python build.py\n"
-    replacement = (
-        "      - name: Validate content\n"
-        "        run: python validate.py\n"
-        + needle
-    )
-    if needle not in text:
-        raise SystemExit("Could not patch Pages workflow: build step not found")
-    workflow.write_text(text.replace(needle, replacement, 1), encoding="utf-8")
+REQUIREMENTS = "Markdown>=3.7,<4\nPyYAML>=6,<7\n"
 
 
 def main() -> int:
@@ -226,13 +191,19 @@ def main() -> int:
     if not (dest / ".git").exists():
         raise SystemExit(f"Destination is not a Git checkout: {dest}")
 
-    (dest / "validate.py").write_text(VALIDATOR, encoding="utf-8")
-    ensure_build_runs_validation(dest)
-    ensure_workflow_validation(dest)
+    scripts = dest / "scripts"
+    scripts.mkdir(parents=True, exist_ok=True)
+    (scripts / "validate.py").write_text(VALIDATOR, encoding="utf-8")
+    (scripts / "requirements.txt").write_text(REQUIREMENTS, encoding="utf-8")
 
-    print(f"Installed source validator: {dest / 'validate.py'}")
-    print("build.py validation:       enabled when build.py exists")
-    print("Pages validation step:     enabled when workflow exists")
+    # Remove the old root validator if it was installed by an earlier version.
+    old = dest / "validate.py"
+    if old.exists():
+        old.unlink()
+
+    print(f"Installed source validator: {scripts / 'validate.py'}")
+    print(f"Validator dependencies:     {scripts / 'requirements.txt'}")
+    print("Run with:                   python scripts/validate.py")
     return 0
 
 
