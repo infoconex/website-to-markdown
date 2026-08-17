@@ -17,18 +17,17 @@ VALIDATOR = r'''#!/usr/bin/env python3
 from __future__ import annotations
 
 import re
-from collections import Counter, defaultdict
+from collections import Counter
 from datetime import date
 from pathlib import Path
 from urllib.parse import urlsplit
 
-import markdown
 import yaml
 
 ROOT = Path(__file__).resolve().parent.parent
 POSTS = ROOT / "posts"
-REQUIRED_FIELDS = ("title", "date", "description", "tags", "slug", "author", "originalUrl", "legacyPaths")
-DATED_LEGACY_RE = re.compile(r"^/post/\d{4}/\d{2}/\d{2}/[^/]+/?$", re.I)
+REQUIRED_FIELDS = ("title", "date", "description", "tags", "slug", "author", "originalUrl", "legacyPaths", "permalink")
+DATED_POST_RE = re.compile(r"^/post/\d{4}/\d{2}/\d{2}/[^/]+/?$", re.I)
 LINK_RE = re.compile(r"!?\[[^\]]*\]\((?P<url>[^)\s]+)")
 HTML_URL_RE = re.compile(r"(?:src|href)=[\"'](?P<url>[^\"']+)[\"']", re.I)
 LEGACY_HOSTS = {"coding.infoconex.com", "www.coding.infoconex.com"}
@@ -53,21 +52,30 @@ def urls(body: str) -> list[str]:
     return found
 
 
-def is_legacy_host_link(url: str) -> bool:
-    parsed = urlsplit(url)
-    return (parsed.hostname or "").lower() in LEGACY_HOSTS and parsed.path.lower().startswith("/post/")
+def route_key(path: str) -> str:
+    clean = path.split("#", 1)[0].split("?", 1)[0].rstrip("/")
+    clean = re.sub(r"\.aspx$", "", clean, flags=re.I)
+    return clean.lower()
+
+
+def expected_source_parts(permalink: str) -> tuple[str, str, str, str] | None:
+    clean = re.sub(r"\.aspx$", "", permalink.rstrip("/"), flags=re.I)
+    parts = clean.strip("/").split("/")
+    if len(parts) != 5 or parts[0].lower() != "post":
+        return None
+    return parts[1], parts[2], parts[3], parts[4]
 
 
 def main() -> int:
-    files = sorted(POSTS.glob("*/index.md")) if POSTS.exists() else []
+    files = sorted(POSTS.glob("*/*/*/*/index.md")) if POSTS.exists() else []
     errors: list[str] = []
     warnings: list[str] = []
     slugs: list[str] = []
-    legacy_owners: dict[str, list[str]] = defaultdict(list)
-    post_bodies: dict[str, str] = {}
+    routes: dict[str, str] = {}
+    bodies: dict[str, str] = {}
 
     if not files:
-        errors.append("no posts/<slug>/index.md files found")
+        errors.append("no posts/YYYY/MM/DD/<historical-slug>/index.md files found")
 
     for index_md in files:
         try:
@@ -76,17 +84,16 @@ def main() -> int:
             errors.append(f"{index_md}: {exc}")
             continue
 
-        post_bodies[str(index_md)] = body
+        bodies[str(index_md)] = body
         missing = [field for field in REQUIRED_FIELDS if field not in data]
         if missing:
             errors.append(f"{index_md}: missing fields: {', '.join(missing)}")
 
         slug = str(data.get("slug") or "")
-        slugs.append(slug)
-        if not slug:
+        if slug:
+            slugs.append(slug)
+        else:
             errors.append(f"{index_md}: empty slug")
-        elif index_md.parent.name != slug:
-            errors.append(f"{index_md}: directory name must match slug {slug!r}")
 
         raw_date = str(data.get("date") or "")
         try:
@@ -97,25 +104,33 @@ def main() -> int:
         if not isinstance(data.get("tags"), list):
             errors.append(f"{index_md}: tags must be a list")
 
+        original = str(data.get("originalUrl") or "")
+        parsed = urlsplit(original)
+        if (parsed.hostname or "").lower() not in LEGACY_HOSTS:
+            errors.append(f"{index_md}: unexpected originalUrl host: {original}")
+
+        permalink = str(data.get("permalink") or "")
+        if not DATED_POST_RE.match(permalink):
+            errors.append(f"{index_md}: invalid historical permalink: {permalink}")
+        elif permalink != parsed.path:
+            errors.append(f"{index_md}: permalink must exactly match originalUrl path: {permalink} != {parsed.path}")
+        else:
+            key = route_key(permalink)
+            if key in routes:
+                errors.append(f"duplicate historical permalink: {permalink}")
+            routes[key] = str(index_md)
+
+            expected = expected_source_parts(permalink)
+            actual = index_md.relative_to(POSTS).parts[:4]
+            if expected and tuple(actual) != expected:
+                errors.append(
+                    f"{index_md}: source path must mirror permalink date/slug; expected "
+                    f"posts/{'/'.join(expected)}/index.md"
+                )
+
         legacy_paths = data.get("legacyPaths")
         if not isinstance(legacy_paths, list) or not legacy_paths:
             errors.append(f"{index_md}: legacyPaths must be a non-empty list")
-            legacy_paths = []
-        for legacy in legacy_paths:
-            legacy = str(legacy)
-            if not DATED_LEGACY_RE.match(legacy):
-                errors.append(f"{index_md}: invalid legacyPath {legacy}")
-            legacy_owners[legacy].append(slug or index_md.parent.name)
-
-        original = str(data.get("originalUrl") or "")
-        parsed = urlsplit(original)
-        if parsed.hostname not in LEGACY_HOSTS:
-            errors.append(f"{index_md}: unexpected originalUrl host: {original}")
-
-        try:
-            markdown.markdown(body, extensions=["fenced_code", "tables", "sane_lists", "attr_list"], output_format="html5")
-        except Exception as exc:
-            errors.append(f"{index_md}: Markdown render failed: {exc}")
 
         for url in urls(body):
             clean = url.split("#", 1)[0].split("?", 1)[0]
@@ -129,10 +144,9 @@ def main() -> int:
                     errors.append(f"{index_md}: missing local image: {clean}")
             if clean.startswith("/images/posts/"):
                 errors.append(f"{index_md}: old generated image URL remains: {url}")
-            if re.match(r"^/post/\d{4}/\d{2}/\d{2}/", clean, re.I):
-                errors.append(f"{index_md}: dated legacy link remains in body: {url}")
-            if is_legacy_host_link(url):
-                errors.append(f"{index_md}: legacy-host link remains in body: {url}")
+            parsed_link = urlsplit(url)
+            if (parsed_link.hostname or "").lower() in LEGACY_HOSTS:
+                errors.append(f"{index_md}: historical-host link should be root-relative: {url}")
 
         image_dir = index_md.parent / "images"
         if image_dir.exists():
@@ -149,21 +163,17 @@ def main() -> int:
         if slug and count > 1:
             errors.append(f"duplicate slug: {slug}")
 
-    for legacy, owners in sorted(legacy_owners.items()):
-        if len(set(owners)) > 1:
-            errors.append(f"legacyPath collision: {legacy} -> {', '.join(sorted(set(owners)))}")
-
-    known_slugs = {s for s in slugs if s}
-    for path, body in post_bodies.items():
+    for path, body in bodies.items():
         for url in urls(body):
-            clean = url.split("#", 1)[0].split("?", 1)[0].rstrip("/")
-            match = re.match(r"^/post/([^/]+)$", clean)
-            if match and match.group(1) not in known_slugs:
-                errors.append(f"{path}: broken canonical internal link: {url}")
+            clean = url.split("#", 1)[0].split("?", 1)[0]
+            if DATED_POST_RE.match(clean) and route_key(clean) not in routes:
+                errors.append(f"{path}: broken historical internal link: {url}")
+            elif re.match(r"^/post/[^/]+/?$", clean, re.I):
+                errors.append(f"{path}: non-historical canonical post link remains: {url}")
 
     print(f"Posts checked:             {len(files)}")
-    print(f"Unique slugs:              {len(known_slugs)}")
-    print(f"Unique legacy paths:       {len(legacy_owners)}")
+    print(f"Unique slugs:              {len(set(slugs))}")
+    print(f"Historical permalinks:     {len(routes)}")
     print(f"Errors:                    {len(errors)}")
     print(f"Warnings:                  {len(warnings)}")
     for message in warnings:
@@ -182,7 +192,7 @@ if __name__ == "__main__":
     raise SystemExit(main())
 '''
 
-REQUIREMENTS = "Markdown>=3.7,<4\nPyYAML>=6,<7\n"
+REQUIREMENTS = "PyYAML>=6,<7\n"
 
 
 def main() -> int:
@@ -196,7 +206,6 @@ def main() -> int:
     (scripts / "validate.py").write_text(VALIDATOR, encoding="utf-8")
     (scripts / "requirements.txt").write_text(REQUIREMENTS, encoding="utf-8")
 
-    # Remove the old root validator if it was installed by an earlier version.
     old = dest / "validate.py"
     if old.exists():
         old.unlink()
