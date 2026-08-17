@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Finalize and audit generated historical blog Markdown.
 
-Rewrites internal BlogEngine /post/... links to the destination /blog/<slug>
+Rewrites internal BlogEngine /post/... links to the destination /<slug>
 routes and writes a reconciliation report. Source URLs that were discovered but
 could not be captured (for example HTTP 404) are reported rather than silently
 ignored.
@@ -69,7 +69,7 @@ def build_route_map(crawl: list[dict[str, Any]]) -> dict[str, str]:
         path = normalize_legacy_path(entry.get("url") or "")
         if not path:
             continue
-        route_map[path] = f"/blog/{slugify(entry.get('title') or '')}"
+        route_map[path] = f"/{slugify(entry.get('title') or '')}"
     return route_map
 
 
