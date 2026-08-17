@@ -11,7 +11,6 @@ Build output is written to _site/ for GitHub Pages deployment.
 from __future__ import annotations
 
 import argparse
-import textwrap
 from pathlib import Path
 
 
@@ -33,14 +32,15 @@ def main() -> int:
     if not (dest / ".git").exists():
         raise SystemExit(f"Destination is not a Git checkout: {dest}")
 
-    build_py = r'''#!/usr/bin/env python3
+    build_py = r"""#!/usr/bin/env python3
 from __future__ import annotations
 
 import html
 import os
 import shutil
+import subprocess
+import sys
 from pathlib import Path
-from urllib.parse import quote
 
 import markdown
 import yaml
@@ -110,6 +110,12 @@ def output_path_for_url(url_path: str) -> Path:
 
 
 def main() -> int:
+    validator = ROOT / "validate.py"
+    if validator.exists():
+        result = subprocess.run([sys.executable, str(validator)], cwd=ROOT)
+        if result.returncode:
+            return result.returncode
+
     if not POSTS.exists():
         raise SystemExit(f"Posts directory not found: {POSTS}")
 
@@ -193,13 +199,11 @@ def main() -> int:
     blog_dir.mkdir(parents=True, exist_ok=True)
     (blog_dir / "index.html").write_text(page("Posts", listing), encoding="utf-8")
 
-    # Previous canonical detail format also redirects to /post/<slug>/.
     for post in posts:
         redirects[f'/blog/{post["slug"]}'] = post["canonical_path"]
 
     for legacy, destination in sorted(redirects.items()):
         redirect_out = output_path_for_url(legacy)
-        # Do not overwrite a canonical article output.
         canonical_article = OUTPUT / "post" / destination.strip("/").split("/")[-1] / "index.html"
         if redirect_out.resolve() == canonical_article.resolve():
             continue
@@ -214,7 +218,7 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-'''
+"""
 
     requirements = "Markdown>=3.7,<4\nPyYAML>=6,<7\n"
 
@@ -264,6 +268,8 @@ jobs:
           python-version: '3.13'
       - name: Install dependencies
         run: pip install -r requirements.txt
+      - name: Validate content
+        run: python validate.py
       - name: Build static site
         run: python build.py
       - name: Configure Pages
