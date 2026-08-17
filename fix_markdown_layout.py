@@ -36,7 +36,22 @@ CSS_RULES = r'''
 .post-body li { margin: .35rem 0; }
 .post-body li > p { margin: .35rem 0; }
 .post-body li img { display: block; margin: .85rem 0; }
-.post-body ol ul > li img { margin-left: .75rem; }
+
+/*
+ * Python-Markdown may emit an image-only continuation either as a direct
+ * anchor beneath the li or as a paragraph containing that anchor. Indent the
+ * wrapper rather than the image so both shapes line up at the same content
+ * column beneath the nested bullet text.
+ */
+.post-body ol ul > li > a:has(> img),
+.post-body ol ul > li > p:has(> a > img) {
+    display: block;
+    margin-left: 1rem;
+}
+.post-body ol ul > li > a:has(> img) > img,
+.post-body ol ul > li > p:has(> a > img) img {
+    margin-left: 0;
+}
 /* END migrated post layout */
 '''
 
@@ -129,8 +144,6 @@ def patch_css(destination: Path) -> bool:
         raise SystemExit(f"Stylesheet not found: {css}")
     text = css.read_text(encoding="utf-8")
 
-    # Replace either the current managed block or the older one-shot marker
-    # block so CSS tuning can be applied repeatedly without duplicating rules.
     managed = re.compile(
         re.escape(CSS_START) + r".*?" + re.escape(CSS_END),
         re.S,
