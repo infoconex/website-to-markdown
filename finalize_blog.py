@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """Finalize and audit generated historical blog Markdown.
 
-Rewrites internal BlogEngine links to the destination /post/<slug> routes,
-adds legacyPaths frontmatter for confirmed historical URLs, and writes a
-reconciliation report. Source URLs that were discovered but could not be
-captured (for example HTTP 404) are reported but are not treated as valid
-historical aliases.
+Rewrites internal BlogEngine links to the confirmed historical URL of the
+captured destination post, adds legacyPaths frontmatter for confirmed historical
+URLs, and writes a reconciliation report. Discovered-but-unavailable URLs are
+reported but are not treated as valid historical aliases.
 """
 
 from __future__ import annotations
@@ -19,7 +18,6 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
-
 
 DEFAULT_CRAWL_MANIFEST = Path("crawl-output/manifest.json")
 DEFAULT_GENERATED_MANIFEST = Path("generated-manifest.json")
@@ -38,50 +36,47 @@ def slugify(value: str) -> str:
 
 
 def is_legacy_post_link(url_or_path: str) -> bool:
-    """Return True only for old BlogEngine post URLs."""
     value = html_lib.unescape((url_or_path or "").strip())
     if not value:
         return False
-
     if value.startswith("//"):
         value = "http:" + value
-
     parsed = urlsplit(value)
     if parsed.scheme or parsed.netloc:
         return (parsed.hostname or "").lower() in LEGACY_HOSTS and parsed.path.lower().startswith("/post/")
-
     path = value.split("?", 1)[0].split("#", 1)[0]
     return bool(re.match(r"^/post/\d{4}/\d{2}/\d{2}/", path, re.I))
 
 
-def normalize_legacy_path(url_or_path: str) -> str | None:
+def exact_historical_path(url_or_path: str) -> str | None:
     value = html_lib.unescape((url_or_path or "").strip())
     if not value or not is_legacy_post_link(value):
         return None
-
     if value.startswith("//"):
         value = "http:" + value
-
     parsed = urlsplit(value)
-    if parsed.scheme or parsed.netloc:
-        path = parsed.path
-    else:
-        path = value.split("?", 1)[0].split("#", 1)[0]
+    path = parsed.path if parsed.scheme or parsed.netloc else value.split("?", 1)[0].split("#", 1)[0]
+    return re.sub(r"/{2,}", "/", path).rstrip("/")
 
-    path = re.sub(r"/{2,}", "/", path).rstrip("/")
-    path = re.sub(r"\.aspx$", "", path, flags=re.I)
-    return path
+
+def normalize_legacy_path(url_or_path: str) -> str | None:
+    path = exact_historical_path(url_or_path)
+    if not path:
+        return None
+    return re.sub(r"\.aspx$", "", path, flags=re.I)
 
 
 def build_route_map(crawl: list[dict[str, Any]]) -> dict[str, str]:
+    """Map any recognized form of a captured historical link to its exact captured path."""
     route_map: dict[str, str] = {}
     for entry in crawl:
         if entry.get("status") != 200 or not entry.get("html_file"):
             continue
-        path = normalize_legacy_path(entry.get("url") or "")
-        if not path:
-            continue
-        route_map[path.lower()] = f"/post/{slugify(entry.get('title') or '')}"
+        raw_url = str(entry.get("url") or "")
+        lookup = normalize_legacy_path(raw_url)
+        destination = exact_historical_path(raw_url)
+        if lookup and destination:
+            route_map[lookup.lower()] = destination
     return route_map
 
 
@@ -105,15 +100,12 @@ def build_legacy_paths_by_slug(crawl: list[dict[str, Any]]) -> dict[str, list[st
 def set_legacy_paths_frontmatter(text: str, paths: list[str]) -> tuple[str, bool]:
     if not text.startswith("---\n"):
         return text, False
-
     end = text.find("\n---\n", 4)
     if end < 0:
         return text, False
-
     frontmatter = text[4:end]
     body = text[end + 5 :]
     value = "legacyPaths: [" + ", ".join(json.dumps(p, ensure_ascii=False) for p in paths) + "]"
-
     existing = re.compile(r"^legacyPaths:\s*.*$", re.M)
     if existing.search(frontmatter):
         updated_frontmatter = existing.sub(value, frontmatter)
@@ -123,7 +115,6 @@ def set_legacy_paths_frontmatter(text: str, paths: list[str]) -> tuple[str, bool
             updated_frontmatter = original_url.sub(r"\1\n" + value, frontmatter, count=1)
         else:
             updated_frontmatter = frontmatter.rstrip() + "\n" + value
-
     updated = "---\n" + updated_frontmatter + "\n---\n" + body
     return updated, updated != text
 
@@ -131,7 +122,6 @@ def set_legacy_paths_frontmatter(text: str, paths: list[str]) -> tuple[str, bool
 def rewrite_markdown(text: str, route_map: dict[str, str]) -> tuple[str, int, set[str]]:
     rewritten = 0
     unresolved: set[str] = set()
-
     md_pattern = re.compile(
         r"(?P<prefix>!?\[[^\]]*\]\()(?P<url>(?:https?://(?:www\.)?coding\.infoconex\.com)?/post/[^)\s]+)",
         re.I,
@@ -143,14 +133,16 @@ def rewrite_markdown(text: str, route_map: dict[str, str]) -> tuple[str, int, se
         if not is_legacy_post_link(raw):
             return match.group(0)
         path = normalize_legacy_path(raw)
-        if path and path.lower() in route_map:
-            rewritten += 1
-            return match.group("prefix") + route_map[path.lower()]
+        destination = route_map.get((path or "").lower())
+        if destination:
+            replacement = match.group("prefix") + destination
+            if replacement != match.group(0):
+                rewritten += 1
+            return replacement
         unresolved.add(raw)
         return match.group(0)
 
     text = md_pattern.sub(md_repl, text)
-
     html_pattern = re.compile(
         r'(?P<prefix>href=["\'])(?P<url>(?:https?://(?:www\.)?coding\.infoconex\.com)?/post/[^"\']+)(?P<suffix>["\'])',
         re.I,
@@ -162,9 +154,12 @@ def rewrite_markdown(text: str, route_map: dict[str, str]) -> tuple[str, int, se
         if not is_legacy_post_link(raw):
             return match.group(0)
         path = normalize_legacy_path(raw)
-        if path and path.lower() in route_map:
-            rewritten += 1
-            return match.group("prefix") + route_map[path.lower()] + match.group("suffix")
+        destination = route_map.get((path or "").lower())
+        if destination:
+            replacement = match.group("prefix") + destination + match.group("suffix")
+            if replacement != match.group(0):
+                rewritten += 1
+            return replacement
         unresolved.add(raw)
         return match.group(0)
 
@@ -202,12 +197,7 @@ def main() -> int:
     duplicate_slugs = sorted(slug for slug, count in counts.items() if count > 1)
 
     unavailable = [
-        {
-            "url": e.get("url"),
-            "title": e.get("title"),
-            "status": e.get("status"),
-            "html_file": e.get("html_file"),
-        }
+        {"url": e.get("url"), "title": e.get("title"), "status": e.get("status"), "html_file": e.get("html_file")}
         for e in crawl
         if e.get("status") != 200 or not e.get("html_file")
     ]
@@ -233,7 +223,6 @@ def main() -> int:
             path.write_text(updated, encoding="utf-8")
 
     missing_legacy_paths = sorted(path.name for path in markdown_files if path.stem not in legacy_paths_by_slug)
-
     report = {
         "crawl_inventory_count": len(crawl),
         "captured_source_count": sum(1 for e in crawl if e.get("status") == 200 and e.get("html_file")),
