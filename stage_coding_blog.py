@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Stage finalized historical blog content into a GitHub Pages source repository.
 
-Destination layout mirrors the confirmed historical BlogEngine URL hierarchy:
+Destination layout mirrors the confirmed historical BlogEngine hierarchy:
 
   posts/YYYY/MM/DD/<historical-slug>/index.md
   posts/YYYY/MM/DD/<historical-slug>/images/*
@@ -9,9 +9,9 @@ Destination layout mirrors the confirmed historical BlogEngine URL hierarchy:
   assets/js/
   assets/css/
 
-Post-specific images remain beside each post and Markdown references are
-rewritten to relative images/... paths. Global assets remain under assets/.
-No redirect manifest is generated; confirmed historical paths are preserved.
+Post-specific images remain beside each post. Each staged Markdown file receives
+an exact permalink derived from originalUrl so the published GitHub Pages URL can
+match the historical URL rather than requiring a redirect.
 """
 
 from __future__ import annotations
@@ -77,21 +77,32 @@ def legacy_paths(text: str) -> list[str]:
     return out
 
 
-def historical_post_path(text: str) -> str:
-    """Return the confirmed historical /post/YYYY/MM/DD/slug path for a post."""
+def exact_public_path(text: str) -> str:
     original_url = frontmatter_value(text, "originalUrl")
-    if original_url:
-        parsed = urlsplit(original_url)
-        path = parsed.path
-        path = re.sub(r"\.aspx$", "", path, flags=re.I).rstrip("/")
-        if re.match(r"^/post/\d{4}/\d{2}/\d{2}/[^/]+$", path, re.I):
-            return path
+    if not original_url:
+        raise SystemExit("Missing originalUrl; cannot preserve historical public URL")
+    path = urlsplit(original_url).path
+    if not re.match(r"^/post/\d{4}/\d{2}/\d{2}/[^/]+$", path, re.I):
+        raise SystemExit(f"Unexpected originalUrl path: {path}")
+    return path
 
-    paths = legacy_paths(text)
-    if len(paths) == 1:
-        return paths[0].rstrip("/")
 
-    raise SystemExit("Could not determine one confirmed historical post path from originalUrl/legacyPaths")
+def historical_source_path(text: str) -> str:
+    """Return /post/YYYY/MM/DD/slug for the source folder hierarchy."""
+    path = exact_public_path(text)
+    return re.sub(r"\.aspx$", "", path, flags=re.I).rstrip("/")
+
+
+def set_permalink(text: str, permalink: str) -> str:
+    line = f'permalink: "{permalink}"'
+    existing = re.compile(r"^permalink:\s*.*$", re.M)
+    if existing.search(text):
+        return existing.sub(line, text, count=1)
+
+    original_url = re.compile(r"^(originalUrl:\s*.*)$", re.M)
+    if not original_url.search(text):
+        raise SystemExit("Cannot add permalink: originalUrl frontmatter not found")
+    return original_url.sub(r"\1\n" + line, text, count=1)
 
 
 def rewrite_post_image_references(text: str, slug: str) -> str:
@@ -132,21 +143,24 @@ def stage_posts(dest: Path, clean_posts: bool) -> tuple[int, int]:
         raise SystemExit(f"Expected {EXPECTED_POSTS} Markdown files in {SOURCE_MD}, found {len(md_files)}")
 
     image_count = 0
-    seen_paths: set[str] = set()
+    seen_public_paths: set[str] = set()
 
     for src in md_files:
         original = src.read_text(encoding="utf-8")
         slug = frontmatter_value(original, "slug") or src.stem
-        historical_path = historical_post_path(original)
-        key = historical_path.lower()
-        if key in seen_paths:
-            raise SystemExit(f"Historical path collision: {historical_path}")
-        seen_paths.add(key)
+        public_path = exact_public_path(original)
+        source_path = historical_source_path(original)
 
-        post_dir = source_dir_for_historical_path(posts_root, historical_path)
+        key = public_path.lower()
+        if key in seen_public_paths:
+            raise SystemExit(f"Historical public path collision: {public_path}")
+        seen_public_paths.add(key)
+
+        post_dir = source_dir_for_historical_path(posts_root, source_path)
         post_dir.mkdir(parents=True, exist_ok=True)
 
         rewritten = rewrite_post_image_references(original, slug)
+        rewritten = set_permalink(rewritten, public_path)
         (post_dir / "index.md").write_text(rewritten, encoding="utf-8")
 
         source_images = SOURCE_ASSETS / slug
@@ -167,8 +181,12 @@ def audit_destination(dest: Path) -> None:
 
     bad_refs: list[str] = []
     missing_images: list[str] = []
+    missing_permalinks: list[str] = []
+
     for index_md in post_files:
         text = index_md.read_text(encoding="utf-8")
+        if not frontmatter_value(text, "permalink"):
+            missing_permalinks.append(str(index_md))
         if "/images/posts/" in text:
             bad_refs.append(str(index_md))
 
@@ -178,6 +196,8 @@ def audit_destination(dest: Path) -> None:
             if not target.exists():
                 missing_images.append(f"{index_md}: {relative}")
 
+    if missing_permalinks:
+        raise SystemExit("Found staged posts without permalink:\n" + "\n".join(missing_permalinks))
     if bad_refs:
         raise SystemExit("Found unre-written /images/posts references:\n" + "\n".join(bad_refs))
     if missing_images:
@@ -205,6 +225,7 @@ def main() -> int:
     print(f"Posts root:              {dest / 'posts'}")
     print(f"Global assets root:      {dest / 'assets'}")
     print("Redirect manifest:       not generated")
+    print("Public URLs:              preserved from originalUrl via permalink")
     print("Post layout:              posts/YYYY/MM/DD/<historical-slug>/index.md + images/")
     return 0
 
