@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 """Stage the finalized historical blog migration into a local coding-blog checkout.
 
-Copies generated Markdown and image assets, switches article-detail links to
-/post/<slug>, preserves /blog as the listing route, redirects old /blog/<slug>
-article URLs, and generates middleware redirects from legacyPaths frontmatter.
+Copies generated Markdown into <coding-blog>/posts and source-controlled image
+assets into <coding-blog>/assets/posts/images. The destination app is updated to
+read Markdown from /posts and to copy post image assets into public/images/posts
+before dev/build so browser-facing image URLs remain /images/posts/....
+
+Also switches article-detail links to /post/<slug>, preserves /blog as the listing
+route, redirects old /blog/<slug> article URLs, and generates middleware redirects
+from legacyPaths frontmatter.
 """
 
 from __future__ import annotations
@@ -64,7 +69,7 @@ def legacy_paths(text: str) -> list[str]:
 
 
 def copy_content(dest: Path) -> dict[str, str]:
-    posts_dest = dest / "content" / "posts"
+    posts_dest = dest / "posts"
     posts_dest.mkdir(parents=True, exist_ok=True)
     redirects: dict[str, str] = {}
 
@@ -83,11 +88,39 @@ def copy_content(dest: Path) -> dict[str, str]:
         shutil.copy2(src, posts_dest / src.name)
 
     if SOURCE_ASSETS.exists():
-        assets_dest = dest / "public" / "images" / "posts"
+        assets_dest = dest / "assets" / "posts" / "images"
         assets_dest.mkdir(parents=True, exist_ok=True)
         shutil.copytree(SOURCE_ASSETS, assets_dest, dirs_exist_ok=True)
 
     return redirects
+
+
+def stage_asset_copy(dest: Path) -> None:
+    scripts_dir = dest / "scripts"
+    scripts_dir.mkdir(parents=True, exist_ok=True)
+    copy_script = scripts_dir / "copy-post-assets.js"
+    copy_script.write_text(
+        "const fs = require('fs');\n"
+        "const path = require('path');\n\n"
+        "const source = path.join(process.cwd(), 'assets', 'posts', 'images');\n"
+        "const destination = path.join(process.cwd(), 'public', 'images', 'posts');\n\n"
+        "if (!fs.existsSync(source)) {\n"
+        "  console.log(`No post image assets found at ${source}`);\n"
+        "  process.exit(0);\n"
+        "}\n\n"
+        "fs.mkdirSync(destination, { recursive: true });\n"
+        "fs.cpSync(source, destination, { recursive: true, force: true });\n"
+        "console.log(`Copied post image assets to ${destination}`);\n",
+        encoding="utf-8",
+    )
+
+    package_path = dest / "package.json"
+    package = json.loads(package_path.read_text(encoding="utf-8"))
+    scripts = package.setdefault("scripts", {})
+    scripts["copy:post-assets"] = "node scripts/copy-post-assets.js"
+    scripts["dev"] = "yarn copy:post-assets && next dev"
+    scripts["build"] = "yarn copy:post-assets && next build"
+    package_path.write_text(json.dumps(package, indent=2) + "\n", encoding="utf-8")
 
 
 def stage_routes(dest: Path, redirects: dict[str, str]) -> None:
@@ -143,10 +176,14 @@ def stage_routes(dest: Path, redirects: dict[str, str]) -> None:
         encoding="utf-8",
     )
 
-    # Make legacyPaths available in blog metadata for future use/debugging.
+    # Point the blog reader at <repo>/posts and expose legacyPaths in metadata.
     blog_lib = dest / "lib" / "blog.ts"
     if blog_lib.exists():
         data = blog_lib.read_text(encoding="utf-8")
+        data = data.replace(
+            "const postsDirectory = path.join(process.cwd(), 'content', 'posts');",
+            "const postsDirectory = path.join(process.cwd(), 'posts');",
+        )
         if "legacyPaths?: string[];" not in data:
             interface_marker = "  readingTime: string;\n"
             data = data.replace(interface_marker, interface_marker + "  legacyPaths?: string[];\n")
@@ -154,7 +191,9 @@ def stage_routes(dest: Path, redirects: dict[str, str]) -> None:
                 "      readingTime: stats?.text ?? '1 min read',\n",
                 "      readingTime: stats?.text ?? '1 min read',\n      legacyPaths: data?.legacyPaths ?? [],\n",
             )
-            blog_lib.write_text(data, encoding="utf-8")
+        blog_lib.write_text(data, encoding="utf-8")
+
+    stage_asset_copy(dest)
 
 
 def main() -> int:
@@ -167,9 +206,10 @@ def main() -> int:
     redirects = copy_content(dest)
     stage_routes(dest, redirects)
 
-    print(f"Staged 61 historical Markdown posts into {dest / 'content' / 'posts'}")
+    print(f"Staged 61 historical Markdown posts into {dest / 'posts'}")
     print(f"Generated {len(redirects)} legacy redirects in {dest / 'legacy-redirects.json'}")
-    print(f"Copied assets into {dest / 'public' / 'images' / 'posts'}")
+    print(f"Copied source image assets into {dest / 'assets' / 'posts' / 'images'}")
+    print("Build/dev copies image assets to public/images/posts for /images/posts/... URLs")
     print("Canonical article route: /post/<slug>")
     print("Legacy /blog/<slug> detail route now redirects to /post/<slug>")
     return 0
