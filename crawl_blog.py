@@ -88,8 +88,6 @@ def normalize_url(url: str) -> str:
     if path != "/":
         path = path.rstrip("/")
 
-    # Fragments do not identify a different post. Query strings on post URLs are
-    # ignored for migration purposes unless you later discover they are meaningful.
     return urlunsplit((scheme, netloc, path, "", ""))
 
 
@@ -120,6 +118,16 @@ def fetch(url: str, timeout: float) -> tuple[str, int, str]:
         except LookupError:
             text = raw.decode("utf-8", errors="replace")
         return text, response.status, response.geturl()
+
+
+def write_text_exact(path: Path, text: str) -> None:
+    """Write decoded response text without platform newline translation.
+
+    On Windows, Path.write_text() can translate existing CRLF input into CRCRLF.
+    That is significant inside <pre> blocks, where it becomes a blank line between
+    every source-code line. Writing bytes preserves the response text exactly.
+    """
+    path.write_bytes(text.encode("utf-8"))
 
 
 def extract_post_links(html: str, page_url: str, base_url: str) -> dict[str, str | None]:
@@ -204,7 +212,6 @@ def crawl(args: argparse.Namespace) -> int:
         else:
             consecutive_without_new = 0
 
-        # Persist after every listing page so an interrupted crawl still leaves a manifest.
         write_outputs(discovered.values(), output_dir)
 
         if consecutive_without_new >= args.stop_after_empty:
@@ -226,7 +233,7 @@ def crawl(args: argparse.Namespace) -> int:
             try:
                 html, status, final_url = fetch(post.url, args.timeout)
                 filename = safe_html_filename(post.url)
-                (html_dir / filename).write_text(html, encoding="utf-8")
+                write_text_exact(html_dir / filename, html)
                 updated[post.url] = Post(
                     url=normalize_url(final_url),
                     discovered_on=post.discovered_on,
