@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import json
 from pathlib import Path
 
 
@@ -32,6 +31,7 @@ REQUIRED_FIELDS = ("title", "date", "description", "tags", "slug", "author", "or
 DATED_LEGACY_RE = re.compile(r"^/post/\d{4}/\d{2}/\d{2}/[^/]+/?$", re.I)
 LINK_RE = re.compile(r"!?\[[^\]]*\]\((?P<url>[^)\s]+)")
 HTML_URL_RE = re.compile(r"(?:src|href)=[\"'](?P<url>[^\"']+)[\"']", re.I)
+LEGACY_HOSTS = {"coding.infoconex.com", "www.coding.infoconex.com"}
 
 
 def read_post(path: Path) -> tuple[dict, str]:
@@ -51,6 +51,11 @@ def urls(body: str) -> list[str]:
     found = [m.group("url") for m in LINK_RE.finditer(body)]
     found.extend(m.group("url") for m in HTML_URL_RE.finditer(body))
     return found
+
+
+def is_legacy_host_link(url: str) -> bool:
+    parsed = urlsplit(url)
+    return (parsed.hostname or "").lower() in LEGACY_HOSTS and parsed.path.lower().startswith("/post/")
 
 
 def main() -> int:
@@ -104,7 +109,7 @@ def main() -> int:
 
         original = str(data.get("originalUrl") or "")
         parsed = urlsplit(original)
-        if parsed.hostname not in {"coding.infoconex.com", "www.coding.infoconex.com"}:
+        if parsed.hostname not in LEGACY_HOSTS:
             errors.append(f"{index_md}: unexpected originalUrl host: {original}")
 
         try:
@@ -126,7 +131,7 @@ def main() -> int:
                 errors.append(f"{index_md}: old generated image URL remains: {url}")
             if re.match(r"^/post/\d{4}/\d{2}/\d{2}/", clean, re.I):
                 errors.append(f"{index_md}: dated legacy link remains in body: {url}")
-            if "coding.infoconex.com/post/" in url.lower():
+            if is_legacy_host_link(url):
                 errors.append(f"{index_md}: legacy-host link remains in body: {url}")
 
         image_dir = index_md.parent / "images"
