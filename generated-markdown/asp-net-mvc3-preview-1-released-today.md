@@ -6,6 +6,7 @@ tags: []
 slug: "asp-net-mvc3-preview-1-released-today"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2010/07/27/ASPNET-MVC3-Preview-1-Released-Today"
+legacyPaths: ["/post/2010/07/27/ASPNET-MVC3-Preview-1-Released-Today"]
 ---
 You can download the new ASP.NET MVC3 Preview 1 [here](http://go.microsoft.com/fwlink/?LinkID=157073)
 

@@ -6,6 +6,7 @@ tags: ["virus scanning"]
 slug: "bluequartz-add-virus-scanning-to-sendmail"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2008/06/01/BlueQuartz-add-virus-scanning-to-sendmail"
+legacyPaths: ["/post/2008/06/01/BlueQuartz-add-virus-scanning-to-sendmail"]
 ---
 This HowTo is designed to provide the simplest solution for virus scanning to a BlueQuartz box. However this will also work on any box running Redhat Enterprise Linux 4 or CentOS 4
 

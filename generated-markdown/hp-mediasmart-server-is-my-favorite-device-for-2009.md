@@ -6,6 +6,7 @@ tags: []
 slug: "hp-mediasmart-server-is-my-favorite-device-for-2009"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2009/11/27/HP-MediaSmart-Server-is-my-favorite-device-for-2009"
+legacyPaths: ["/post/2009/11/27/HP-MediaSmart-Server-is-my-favorite-device-for-2009"]
 ---
 **Automatically Backup all your PC’s and MAC’s.** If backing up your machine is important to you but you have just not taken the step to implement a backup process, then I would highly recommend the **[HP MediaSmart Server](http://www.amazon.com/gp/product/B002N8A0A2?ie=UTF8&tag=codblo-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=B002N8A0A2)![](http://www.assoc-amazon.com/e/ir?t=codblo-20&l=as2&o=1&a=B002N8A0A2)** . While it has many features the most important and coolest one in my opinion is the backup feature.
 

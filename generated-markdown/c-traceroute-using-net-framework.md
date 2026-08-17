@@ -6,6 +6,7 @@ tags: []
 slug: "c-traceroute-using-net-framework"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2009/01/14/C-Traceroute-using-net-framework"
+legacyPaths: ["/post/2009/01/14/C-Traceroute-using-net-framework"]
 ---
 If you have ever tried to create a traceroute program using one of the few available ICMP libraries freely available for C# you may have run into some issues mainly to do with the ICMP checksum not being correct. It seems that as of .NET 2.0 framework that microsoft included a Ping class that makes it really easy to then use it to create a traceroute utility. Here is some basic code to create a traceroute utility.
 

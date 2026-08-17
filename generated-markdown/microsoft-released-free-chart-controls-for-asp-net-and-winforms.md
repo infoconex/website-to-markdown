@@ -6,6 +6,7 @@ tags: []
 slug: "microsoft-released-free-chart-controls-for-asp-net-and-winforms"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2009/01/14/Microsoft-released-free-Chart-Controls-for-ASPNET-and-Winforms"
+legacyPaths: ["/post/2009/01/14/Microsoft-released-free-Chart-Controls-for-ASPNET-and-Winforms"]
 ---
 I might be behind the times but I just found out that MS released free charting controls for Winform and ASP.NET. Requires you be running VS2008.
 

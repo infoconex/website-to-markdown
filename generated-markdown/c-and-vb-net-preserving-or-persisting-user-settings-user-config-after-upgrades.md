@@ -6,6 +6,7 @@ tags: []
 slug: "c-and-vb-net-preserving-or-persisting-user-settings-user-config-after-upgrades"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2009/01/14/c-and-vbnet-preserving-or-persisting-user-settings-userconfig-after-upgrades"
+legacyPaths: ["/post/2009/01/14/c-and-vbnet-preserving-or-persisting-user-settings-userconfig-after-upgrades"]
 ---
 If you store settings in your application using Settings.Settings and have ever upgraded your application you may have found all the user settings have vanished. It seems that the user.config file is stored in %UserProfile/LocalSettings/Application Data/CompanyName/ApplicationName/versionnumber/user.config
 

@@ -13,6 +13,8 @@
     }
   ],
   "internal_links_rewritten": 0,
+  "legacy_paths_files_updated": 0,
+  "missing_legacy_paths": [],
   "unresolved_legacy_links": {},
   "check_only": true
 }

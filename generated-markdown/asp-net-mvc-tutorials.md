@@ -6,6 +6,7 @@ tags: []
 slug: "asp-net-mvc-tutorials"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2010/01/04/ASPNET-MVC-Tutorials"
+legacyPaths: ["/post/2010/01/04/ASPNET-MVC-Tutorials"]
 ---
 Over the last week I have been playing around with the latest ASP.NET MVC 2 RC framework available here <http://go.microsoft.com/fwlink/?LinkID=157071>
 

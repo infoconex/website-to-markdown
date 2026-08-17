@@ -6,6 +6,7 @@ tags: []
 slug: "asp-net-customvalidator-that-validates-multiple-controls-using-both-server-side-and-client-side-scripting"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2010/10/11/ASPNET-CustomValidator-that-validates-multiple-controls-using-both-Server-Side-and-Client-Side-scripting"
+legacyPaths: ["/post/2010/10/11/ASPNET-CustomValidator-that-validates-multiple-controls-using-both-Server-Side-and-Client-Side-scripting"]
 ---
 ASP.NET has some nice validation controls built in that can help make validating forms much easier. Listed below are a few of the available controls.
 

@@ -6,6 +6,7 @@ tags: ["ebook"]
 slug: "free-collection-of-ebooks-for-various-microsoft-technologies"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2013/06/22/Free-collection-of-EBooks-for-various-Microsoft-Technologies"
+legacyPaths: ["/post/2013/06/22/Free-collection-of-EBooks-for-various-Microsoft-Technologies"]
 ---
 Found a page on the Technet site that provides a pretty good list of eBooks on various Microsoft Technologies
 

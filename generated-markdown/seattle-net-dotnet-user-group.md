@@ -6,6 +6,7 @@ tags: []
 slug: "seattle-net-dotnet-user-group"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2009/05/19/Seattle-net-dotnet-user-group"
+legacyPaths: ["/post/2009/05/19/Seattle-net-dotnet-user-group"]
 ---
 Great new user group that is getting started and it is in Seattle. Was hosted at Starbucks who provided a top notch facility for the meeting. About 25 people showed up and  speaker [Charles Sterling](http://blogs.msdn.com/charles_sterling/)  gave us a great presentation walking us through the new testing tools in Microsoft Visual Studio Team Systems 2010.
 

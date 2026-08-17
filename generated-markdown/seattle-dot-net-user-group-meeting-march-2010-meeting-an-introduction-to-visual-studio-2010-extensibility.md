@@ -6,6 +6,7 @@ tags: []
 slug: "seattle-dot-net-user-group-meeting-march-2010-meeting-an-introduction-to-visual-studio-2010-extensibility"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2010/02/17/Seattle-DOT-Net-User-Group-Meeting-March-2010-Meeting-An-Introduction-to-Visual-Studio-2010-Extensibility"
+legacyPaths: ["/post/2010/02/17/Seattle-DOT-Net-User-Group-Meeting-March-2010-Meeting-An-Introduction-to-Visual-Studio-2010-Extensibility"]
 ---
 ### For more information about the usergroup visit [www.seattledotnet.org](http://www.seattledotnet.org)
 

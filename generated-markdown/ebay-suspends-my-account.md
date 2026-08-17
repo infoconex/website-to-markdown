@@ -6,6 +6,7 @@ tags: []
 slug: "ebay-suspends-my-account"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2020/04/07/eBay-suspends-my-account"
+legacyPaths: ["/post/2020/04/07/eBay-suspends-my-account"]
 ---
 I had created an account with eBay back in the beginning and had not used it in a long time. I reset my password because I had forgotten it and upon login I was informed my account had been suspended. I sent them a request to reactivate it and received this response. What has happened to this company? Who treats their customers like this?
 

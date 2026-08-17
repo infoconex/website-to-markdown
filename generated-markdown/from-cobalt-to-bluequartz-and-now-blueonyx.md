@@ -6,6 +6,7 @@ tags: []
 slug: "from-cobalt-to-bluequartz-and-now-blueonyx"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2009/02/01/From-Cobalt-to-BlueQuartz-and-now-BlueOnyx"
+legacyPaths: ["/post/2009/02/01/From-Cobalt-to-BlueQuartz-and-now-BlueOnyx"]
 ---
 It has been a bit of a journey since I first started offering web hosting services using the Cobalt Platform that was later sold to Sun Microsystems and then dropped from the product line. However thanks to Sun they released on the cobalt software as opensource and released to the public. Since then a great group of guys dedicated there time to producing an easy to install version based on CentOS called BlueQuartz.
 

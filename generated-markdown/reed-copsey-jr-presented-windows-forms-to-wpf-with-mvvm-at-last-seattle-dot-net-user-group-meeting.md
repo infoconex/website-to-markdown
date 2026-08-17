@@ -6,6 +6,7 @@ tags: []
 slug: "reed-copsey-jr-presented-windows-forms-to-wpf-with-mvvm-at-last-seattle-dot-net-user-group-meeting"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2010/02/18/Reed-Copsey-Jr-presented-Windows-Forms-to-WPF-with-MVVM-at-last-Seattle-DOT-Net-User-Group-Meeting"
+legacyPaths: ["/post/2010/02/18/Reed-Copsey-Jr-presented-Windows-Forms-to-WPF-with-MVVM-at-last-Seattle-DOT-Net-User-Group-Meeting"]
 ---
 I am mostly an ASP.NET developer but after watching Reed show the group the basics of WPF and how easy it was in my opinion compared to winforms I am convinced now that I am going to start doing WPF going forward.
 

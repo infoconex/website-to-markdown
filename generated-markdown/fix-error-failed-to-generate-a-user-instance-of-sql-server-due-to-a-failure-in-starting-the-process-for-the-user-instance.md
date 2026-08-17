@@ -6,6 +6,7 @@ tags: ["SQL", "Visual Studio"]
 slug: "fix-error-failed-to-generate-a-user-instance-of-sql-server-due-to-a-failure-in-starting-the-process-for-the-user-instance"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2011/05/25/Fix-error-Failed-to-generate-a-user-instance-of-SQL-Server-due-to-a-failure-in-starting-the-process-for-the-user-instance"
+legacyPaths: ["/post/2011/05/25/Fix-error-Failed-to-generate-a-user-instance-of-SQL-Server-due-to-a-failure-in-starting-the-process-for-the-user-instance"]
 ---
 For anyone using Visual Studio and trying to add a SQL Database File and getting the error: "Failed to generate a user instance of SQL Server due to a failure in starting the process for the user instance." you might want to give the following steps a try.
 

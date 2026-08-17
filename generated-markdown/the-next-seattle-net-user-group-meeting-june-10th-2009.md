@@ -6,6 +6,7 @@ tags: []
 slug: "the-next-seattle-net-user-group-meeting-june-10th-2009"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2009/06/08/The-next-SeattleNet-User-Group-meeting-June-10th2c-2009"
+legacyPaths: ["/post/2009/06/08/The-next-SeattleNet-User-Group-meeting-June-10th2c-2009"]
 ---
 **for more information visit website: <http://seattledotnet.org/>**
 

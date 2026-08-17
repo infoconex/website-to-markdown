@@ -6,6 +6,7 @@ tags: []
 slug: "understanding-net-reference-types-and-value-types"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2009/03/20/Understanding-NET-Reference-Types-and-Value-Types"
+legacyPaths: ["/post/2009/03/20/Understanding-NET-Reference-Types-and-Value-Types"]
 ---
 I have been developing in .NET now for about 4 years and while I have visited this topic many times I have not always fully understood things. Dealing with Value Types is really straight forward however when we start to get into Reference Types things become a bit clouded. Well I have recently been forced to try and explain them to someone else and so I decided it was time to make sure I fully understand things. So this is my attempt to provide based on things I have read and learned how things work.
 

@@ -6,6 +6,7 @@ tags: []
 slug: "replacing-text-in-a-stream-after-writing"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2009/05/22/Replacing-text-in-a-stream-after-writing"
+legacyPaths: ["/post/2009/05/22/Replacing-text-in-a-stream-after-writing"]
 ---
 Recently I responded to a question asked on StackOverflow. The question was "What is the BEST way to replace text in a File using C# / .NET?"
 

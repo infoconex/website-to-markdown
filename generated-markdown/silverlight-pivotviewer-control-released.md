@@ -6,6 +6,7 @@ tags: []
 slug: "silverlight-pivotviewer-control-released"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2010/07/29/Silverlight-PivotViewer-control-released"
+legacyPaths: ["/post/2010/07/29/Silverlight-PivotViewer-control-released"]
 ---
 The silverlight PivotViewer control allows you to build very large collections and embed them on your website. Works really well for collections that provide a visual representation of the data you are navigating and uses the silverlight deep zoom feature so navigating high resolution images is very quick.
 

@@ -6,6 +6,7 @@ tags: ["mono"]
 slug: "bluequartz-installing-mono"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2008/08/23/BlueQuartz-installing-Mono"
+legacyPaths: ["/post/2008/08/23/BlueQuartz-installing-Mono"]
 ---
 Mono allows you to run applications written in .NET programming language on Linux machines.
 

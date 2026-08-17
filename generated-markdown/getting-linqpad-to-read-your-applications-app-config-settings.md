@@ -6,6 +6,7 @@ tags: ["LINQPad"]
 slug: "getting-linqpad-to-read-your-applications-app-config-settings"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2012/06/01/Getting-LINQPad-to-read-your-applications-AppConfig-settings"
+legacyPaths: ["/post/2012/06/01/Getting-LINQPad-to-read-your-applications-AppConfig-settings"]
 ---
 I have been using LINQPad for a while now and I love it. This utility allows me to write and execute immediately code that I am working out before I put it into my project. However on occassion I need to reference assemblies from my project that are getting settings from the applications App.Config such as SQL connection strings etc...
 

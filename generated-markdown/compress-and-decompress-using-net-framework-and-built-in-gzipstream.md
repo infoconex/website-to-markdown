@@ -6,6 +6,7 @@ tags: []
 slug: "compress-and-decompress-using-net-framework-and-built-in-gzipstream"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2009/05/22/Compress-and-Decompress-using-net-framework-and-built-in-GZipStream"
+legacyPaths: ["/post/2009/05/22/Compress-and-Decompress-using-net-framework-and-built-in-GZipStream"]
 ---
 I recently had a project in which I wanted to compress log files I was transferring between servers. I did not realize till I did some research that the .NET framework has a nice little library built in for creating GZIP files. While I think the maximum recommended size for using this is 4GIG I am well under that.
 

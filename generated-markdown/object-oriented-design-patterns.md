@@ -6,6 +6,7 @@ tags: []
 slug: "object-oriented-design-patterns"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2008/10/14/Object-Oriented-Design-Patterns"
+legacyPaths: ["/post/2008/10/14/Object-Oriented-Design-Patterns"]
 ---
 While I have been programming now for about 3 years using the Object Oriented programming environment of C# I have not really spent any time looking at patterns. I am guessing in my natural progression of learning programming this seems to be the next logical step.
 

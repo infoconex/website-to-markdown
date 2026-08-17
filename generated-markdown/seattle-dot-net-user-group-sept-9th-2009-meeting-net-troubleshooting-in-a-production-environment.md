@@ -6,6 +6,7 @@ tags: []
 slug: "seattle-dot-net-user-group-sept-9th-2009-meeting-net-troubleshooting-in-a-production-environment"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2009/08/26/Seattle-Dot-Net-User-Group-Sept-9th-2009-Meeting-NET-Troubleshooting-in-a-Production-Environment"
+legacyPaths: ["/post/2009/08/26/Seattle-Dot-Net-User-Group-Sept-9th-2009-Meeting-NET-Troubleshooting-in-a-Production-Environment"]
 ---
 **For more information visit user group website <http://seattledotnet.org/>**
 

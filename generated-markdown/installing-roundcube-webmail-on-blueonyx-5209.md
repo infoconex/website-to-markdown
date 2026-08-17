@@ -6,6 +6,7 @@ tags: ["BlueOnyx", "Roundcube"]
 slug: "installing-roundcube-webmail-on-blueonyx-5209"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2016/03/10/installing-roundcube-webmail-on-blueonyx-5209"
+legacyPaths: ["/post/2016/03/10/installing-roundcube-webmail-on-blueonyx-5209"]
 ---
 I recently had to migrate some older BlueOnyx and BlueQuartz servers to newer hardware and took the opportunity to install a newer webmail interface called Roundcube.
 

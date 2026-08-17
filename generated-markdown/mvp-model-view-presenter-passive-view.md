@@ -6,6 +6,7 @@ tags: []
 slug: "mvp-model-view-presenter-passive-view"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2010/01/16/(MVP)-Model-View-Presenter-Passive-View"
+legacyPaths: ["/post/2010/01/16/(MVP)-Model-View-Presenter-Passive-View"]
 ---
 In my journey to write better software I have been looking at various patterns available. One of them is known as the Model View Presenter or MVP pattern. In doing some reading many of the sites I have come across point to [Martin Fowlers website](http://martinfowler.com/) who is well known for his contribution in design patterns. He has put the MVP pattern into two separate types [Passive View](http://martinfowler.com/eaaDev/PassiveScreen.html) and [Supervising Controller](http://martinfowler.com/eaaDev/SupervisingPresenter.html).
 

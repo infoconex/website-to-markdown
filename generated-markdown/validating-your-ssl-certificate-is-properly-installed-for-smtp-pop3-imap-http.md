@@ -6,6 +6,7 @@ tags: ["SSL", "Linux"]
 slug: "validating-your-ssl-certificate-is-properly-installed-for-smtp-pop3-imap-http"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2016/03/16/validating-your-ssl-certificate-is-properly-installed-for-smtp-pop3-imap-http"
+legacyPaths: ["/post/2016/03/16/validating-your-ssl-certificate-is-properly-installed-for-smtp-pop3-imap-http"]
 ---
 I recently installed a new SSL certificate on one of my Linux boxes and wanted to verify that my email server was using the new certificate. For HTTP this can be easy as you simply go to the secure URL and check your browsers SSL Icon to see that the certificate is as expected. However for SMTP, POP3 and IMAP I was not aware of a similar way to verify.
 

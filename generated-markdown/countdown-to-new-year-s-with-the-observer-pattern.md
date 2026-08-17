@@ -6,6 +6,7 @@ tags: []
 slug: "countdown-to-new-year-s-with-the-observer-pattern"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2022/12/27/countdown-to-new-year-s-with-the-observer-pattern"
+legacyPaths: ["/post/2022/12/27/countdown-to-new-year-s-with-the-observer-pattern"]
 ---
 One design pattern that you might find fun to relate to New Year's Eve is the Observer design pattern. The Observer design pattern is a behavioral design pattern that defines a one-to-many dependency between objects, so that when one object changes state, all of its dependents are notified and updated automatically.
 

@@ -6,6 +6,7 @@ tags: []
 slug: "microsoft-patterns-and-practices-application-architecture-guide-2-0"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2009/03/26/Microsoft-patterns-practices-Application-Architecture-Guide-20"
+legacyPaths: ["/post/2009/03/26/Microsoft-patterns-practices-Application-Architecture-Guide-20"]
 ---
 Was listening to a podcast the other day in which one of the authors of the Microsoft patterns & practices Application Architecture Guide was speaking about this latest version so I decide to take a look. So far I am very impressed as the information seems to do a fairly good job of coupling desgin guidlines for applications with some of the latest technologies.
 

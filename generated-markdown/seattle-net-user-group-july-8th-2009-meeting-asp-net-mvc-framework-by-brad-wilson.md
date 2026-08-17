@@ -6,6 +6,7 @@ tags: []
 slug: "seattle-net-user-group-july-8th-2009-meeting-asp-net-mvc-framework-by-brad-wilson"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2009/07/05/Seattle-NET-User-Group-July-8th-2009-Meeting-ASPNET-MVC-Framework-by-Brad-Wilson"
+legacyPaths: ["/post/2009/07/05/Seattle-NET-User-Group-July-8th-2009-Meeting-ASPNET-MVC-Framework-by-Brad-Wilson"]
 ---
 **Topic:**  **ASP.NET MVC.**
 

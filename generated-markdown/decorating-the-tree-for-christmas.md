@@ -6,6 +6,7 @@ tags: ["design patterns", "c#"]
 slug: "decorating-the-tree-for-christmas"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2022/12/26/decorating-the-tree-for-christmas"
+legacyPaths: ["/post/2022/12/26/decorating-the-tree-for-christmas"]
 ---
 As a software developer, I've always been fascinated by design patterns and how they can help solve common problems in software design. This holiday season, I've been thinking a lot about how some of these patterns can be incorporated into our daily lives, just like the themes and traditions of Christmas.
 

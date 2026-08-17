@@ -6,6 +6,7 @@ tags: []
 slug: "c-ping"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2009/01/12/C-Ping-and-Traceroute"
+legacyPaths: ["/post/2009/01/12/C-Ping-and-Traceroute"]
 ---
 I was recently tasked with putting together a ping and traceroute feature in an application and like I always do I googled to see if someone had already worked out how to do this.
 

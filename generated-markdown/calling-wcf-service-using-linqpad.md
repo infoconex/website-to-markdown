@@ -6,6 +6,7 @@ tags: ["LINQPad", "WCF"]
 slug: "calling-wcf-service-using-linqpad"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2012/12/05/Calling-WCF-Service-using-LINQPad"
+legacyPaths: ["/post/2012/12/05/Calling-WCF-Service-using-LINQPad"]
 ---
 First, if you are a .NET developer and you are not using LINQPad yet go and check it out at [www.linqpad.net](http://www.linqpad.net). They offer a free version that is the same as the paid version but without intellisense and the pricing to upgrade to the full version is well worth the productivity gain you get.
 

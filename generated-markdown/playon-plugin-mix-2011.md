@@ -6,6 +6,7 @@ tags: []
 slug: "playon-plugin-mix-2011"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2011/06/21/PlayOn-Plugin-MIX-2011"
+legacyPaths: ["/post/2011/06/21/PlayOn-Plugin-MIX-2011"]
 ---
 I have been using [PlayOn software](http://www.playon.tv/) to view online content via my XBOX for about 6 months now and while it is really cool I dont find myself using it as much as I thought I would. However one thing I have enjoyed is using it to view last years MIX 2010 content that someone provided a plugin script for. However as of MIX 2011 they reformatted the website and now the previous plugin does not work.
 

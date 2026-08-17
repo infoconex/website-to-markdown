@@ -6,6 +6,7 @@ tags: []
 slug: "my-favorite-design-patterns-are-strategy-and-factory-method"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2013/10/05/My-favorite-design-patterns-are-Strategy-and-Factory-Method"
+legacyPaths: ["/post/2013/10/05/My-favorite-design-patterns-are-Strategy-and-Factory-Method"]
 ---
 A number of years back I started my exploration into the world of design patterns and read an incredible book “[Design Patterns Explained](http://www.amazon.com/gp/product/0321247140/ref=as_li_qf_sp_asin_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=0321247140&linkCode=as2&tag=codblo-20 "Design Patterns Explained")” that did a great job in getting me started on a path that would ultimately change the way I developed code forever.
 

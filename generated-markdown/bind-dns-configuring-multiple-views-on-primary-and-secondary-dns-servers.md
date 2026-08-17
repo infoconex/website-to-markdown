@@ -6,6 +6,7 @@ tags: []
 slug: "bind-dns-configuring-multiple-views-on-primary-and-secondary-dns-servers"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2010/04/26/Bind-DNS-e28093-Configuring-multiple-views-on-primary-and-secondary-DNS-servers"
+legacyPaths: ["/post/2010/04/26/Bind-DNS-e28093-Configuring-multiple-views-on-primary-and-secondary-DNS-servers"]
 ---
 If you have a firewall with DMZ and Internal zones and you have machines that sit behind the firewall that query DNS that resolves back to your machines inside one of those zones then it is likely that you have had to setup some type of DNS configuration that allows internal hosts to resolve a DNS name to the internal IP rather than the public IP address.
 

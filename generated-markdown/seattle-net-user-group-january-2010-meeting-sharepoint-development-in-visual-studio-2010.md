@@ -6,6 +6,7 @@ tags: []
 slug: "seattle-net-user-group-january-2010-meeting-sharepoint-development-in-visual-studio-2010"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2010/01/05/Seattle-NET-User-Group-January-2010-Meeting-SharePoint-development-in-Visual-Studio-2010"
+legacyPaths: ["/post/2010/01/05/Seattle-NET-User-Group-January-2010-Meeting-SharePoint-development-in-Visual-Studio-2010"]
 ---
 ### Upcoming event for Seattle .NET User Group. For more details about location and group visit <http://seattledotnet.org/>
 

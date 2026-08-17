@@ -6,6 +6,7 @@ tags: ["quota"]
 slug: "bluequartz-how-to-resync-quota-of-system-with-gui"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2008/05/31/BlueQuartz-how-to-resync-quota-of-system-with-GUI"
+legacyPaths: ["/post/2008/05/31/BlueQuartz-how-to-resync-quota-of-system-with-GUI"]
 ---
 Not sure how many others have had this issue but on occasion I get a user that calls because they are getting email rejected because they are over quota. I log into the administration interface only to find that the quota does not report that they are over quota. I go to a command prompt and checkquota and sure enough  they are over quota.
 

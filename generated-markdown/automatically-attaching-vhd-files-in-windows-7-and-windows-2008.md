@@ -6,6 +6,7 @@ tags: []
 slug: "automatically-attaching-vhd-files-in-windows-7-and-windows-2008"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2009/11/26/Automatically-attaching-VHD-files-in-Windows-7-and-Windows-2008"
+legacyPaths: ["/post/2009/11/26/Automatically-attaching-VHD-files-in-Windows-7-and-Windows-2008"]
 ---
 If you have played with the new VHD feature in windows 7 or windows 2008 then you know just how cool of a feature this is. However the problem is that when you reboot your machine you find that when it comes back up all your VHD files are no longer attached? Here is what I did to get around the issue.
 

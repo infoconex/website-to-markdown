@@ -6,6 +6,7 @@ tags: ["Azure"]
 slug: "creating-custom-eventlog-source-in-windows-azure"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2012/02/09/Creating-custom-EventLog-source-in-windows-azure"
+legacyPaths: ["/post/2012/02/09/Creating-custom-EventLog-source-in-windows-azure"]
 ---
 If you have tried to execute the following code on windows azure then no doubt you have run into a security violation. In fact if you try and run the same example on your local machine you will also get the same error as creating an custom event source on windows requires that it be performed by an Administrator.
 

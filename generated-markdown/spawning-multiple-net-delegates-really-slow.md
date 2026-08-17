@@ -6,6 +6,7 @@ tags: ["c#"]
 slug: "spawning-multiple-net-delegates-really-slow"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2008/10/14/Spawning-multiple-NET-delegates-really-slow"
+legacyPaths: ["/post/2008/10/14/Spawning-multiple-NET-delegates-really-slow"]
 ---
 I recently worked on a project that had a listener service running that took TCP requests and made external calls to a remote WebService. The listener service could have up to 300 concurrent requests.
 

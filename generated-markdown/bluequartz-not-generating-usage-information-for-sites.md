@@ -6,6 +6,7 @@ tags: []
 slug: "bluequartz-not-generating-usage-information-for-sites"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2008/12/11/BlueQuartz-not-generating-usage-information-for-sites"
+legacyPaths: ["/post/2008/12/11/BlueQuartz-not-generating-usage-information-for-sites"]
 ---
 For those that might be having the same problem here is what I found.
 

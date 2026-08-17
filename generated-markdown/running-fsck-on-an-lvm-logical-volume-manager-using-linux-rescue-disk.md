@@ -6,6 +6,7 @@ tags: []
 slug: "running-fsck-on-an-lvm-logical-volume-manager-using-linux-rescue-disk"
 author: "Jim Scott"
 originalUrl: "http://coding.infoconex.com/post/2012/10/12/Running-FSCK-on-an-LVM-(Logical-Volume-Manager)-using-Linux-Rescue-Disk"
+legacyPaths: ["/post/2012/10/12/Running-FSCK-on-an-LVM-(Logical-Volume-Manager)-using-Linux-Rescue-Disk"]
 ---
 I am not a linux expert and so when I have problems from time to time I usually have to go searching for the answer. It usually takes me looking at several articles to get my answer and when I am finished I always try and put together a article that has everything I need to know in once spot. Please feel free to correct or suggest a better alternative if you come across this article and would like to provide feedback.
 
