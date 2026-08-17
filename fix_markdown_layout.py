@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """Fix known layout artifacts in migrated Markdown and staged static-site CSS.
 
-Repairs image/list boundaries in generated Markdown. BlogEngine content often
-places screenshots inside ordered-list items. markdownify commonly emits those
-continuation blocks with three leading spaces; Python-Markdown can then treat a
-following sibling list item as inline continuation text. This pass normalizes
-block content inside list items to four-space continuation indentation and
-ensures a blank line before the next sibling item.
+BlogEngine screenshots inside ordered-list items are commonly emitted by
+markdownify with three leading spaces. That form renders as Markdown, but it
+needs a blank line before the next sibling list item. Four leading spaces are
+*not* used here because Python-Markdown may interpret the image Markdown as an
+indented code block.
 """
 
 from __future__ import annotations
@@ -22,14 +21,19 @@ IMAGE_ONLY_RE = re.compile(
 )
 TOP_LEVEL_LIST_RE = re.compile(r"^(?P<indent>[ \t]*)(?P<marker>(?:[-+*]|\d+[.)]))\s+")
 
+CSS_MARKER = "Migrated post content: keep loose Markdown lists compact"
+CSS_BLOCK_RE = re.compile(
+    r"\n?/\* Migrated post content: keep loose Markdown lists compact and images block-level\. \*/.*?(?=\n/\*|\Z)",
+    re.S,
+)
 CSS_RULES = r'''
 
 /* Migrated post content: keep loose Markdown lists compact and images block-level. */
 .post-body li { margin: .35rem 0; }
 .post-body li > p { margin: .35rem 0; }
 .post-body li img { display: block; margin: .85rem 0; }
+.post-body li a:has(> img) { display: block; }
 '''
-CSS_MARKER = "Migrated post content: keep loose Markdown lists compact"
 
 
 def leading_spaces(line: str) -> int:
@@ -37,40 +41,22 @@ def leading_spaces(line: str) -> int:
 
 
 def normalize_markdown(text: str) -> tuple[str, int, int]:
-    """Normalize screenshot blocks that occur inside top-level list items.
-
-    The specific broken migration shape is:
-
-        1. item text
-
-           [![image](thumb)](full)
-        2. next item
-
-    The three-space continuation is changed to four spaces, and a blank line is
-    guaranteed before the next top-level item:
-
-        1. item text
-
-            [![image](thumb)](full)
-
-        2. next item
-    """
+    """Keep list-item images as Markdown and separate the next sibling item."""
     lines = text.splitlines()
     out: list[str] = []
-    reindented = 0
+    deindented = 0
     inserted = 0
 
     for i, original_line in enumerate(lines):
         line = original_line
         image = IMAGE_ONLY_RE.match(line)
 
-        # markdownify frequently emits three spaces for content nested beneath a
-        # top-level list item. Four spaces is the unambiguous Markdown block
-        # continuation indentation and works consistently with Python-Markdown.
-        if image and leading_spaces(line) == 3:
-            line = " " + line
+        # Repair the previous migration pass, which changed these lines to four
+        # spaces and caused Python-Markdown to render the image syntax as code.
+        if image and leading_spaces(line) == 4:
+            line = line[1:]
             image = IMAGE_ONLY_RE.match(line)
-            reindented += 1
+            deindented += 1
 
         out.append(line)
 
@@ -82,14 +68,14 @@ def normalize_markdown(text: str) -> tuple[str, int, int]:
         if not next_item or leading_spaces(next_line) != 0:
             continue
 
-        # Only insert when there is no blank source line already between the
-        # screenshot and its next sibling list item.
-        if next_line.strip():
+        # A blank line terminates the image-containing list block before the
+        # next numbered sibling. Do not add a duplicate if one already exists.
+        if line.strip() and next_line.strip():
             out.append("")
             inserted += 1
 
     suffix = "\n" if text.endswith("\n") else ""
-    return "\n".join(out) + suffix, reindented, inserted
+    return "\n".join(out) + suffix, deindented, inserted
 
 
 def patch_css(destination: Path) -> bool:
@@ -98,8 +84,12 @@ def patch_css(destination: Path) -> bool:
         raise SystemExit(f"Stylesheet not found: {css}")
     text = css.read_text(encoding="utf-8")
     if CSS_MARKER in text:
+        updated = CSS_BLOCK_RE.sub(CSS_RULES.rstrip(), text)
+    else:
+        updated = text.rstrip() + CSS_RULES + "\n"
+    if updated == text:
         return False
-    css.write_text(text.rstrip() + CSS_RULES + "\n", encoding="utf-8")
+    css.write_text(updated, encoding="utf-8")
     return True
 
 
@@ -114,15 +104,15 @@ def main() -> int:
         raise SystemExit(f"No Markdown files found in {args.markdown_dir}")
 
     changed_files = 0
-    reindented_total = 0
+    deindented_total = 0
     inserted_total = 0
     for path in files:
         original = path.read_text(encoding="utf-8")
-        updated, reindented, inserted = normalize_markdown(original)
+        updated, deindented, inserted = normalize_markdown(original)
         if updated != original:
             path.write_text(updated, encoding="utf-8")
             changed_files += 1
-        reindented_total += reindented
+        deindented_total += deindented
         inserted_total += inserted
 
     css_changed = False
@@ -131,7 +121,7 @@ def main() -> int:
 
     print(f"Markdown files checked:   {len(files)}")
     print(f"Markdown files changed:   {changed_files}")
-    print(f"Image blocks reindented:  {reindented_total}")
+    print(f"Image blocks deindented:  {deindented_total}")
     print(f"List boundaries inserted: {inserted_total}")
     if args.destination:
         print(f"Site CSS updated:          {'yes' if css_changed else 'already current'}")
